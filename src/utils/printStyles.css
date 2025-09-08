@@ -1,0 +1,52 @@
+
+@media print {
+  .print-only {
+    display: block !important;
+  }
+  
+  .no-print, .no-print * {
+    display: none !important;
+  }
+  
+  .print-hidden {
+    display: none !important;
+  }
+
+  /* Ensure all containers expand to full-width for better printing */
+  .print-full-width {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Add page breaks where needed */
+  .print-break-after {
+    page-break-after: always;
+  }
+  
+  .print-break-before {
+    page-break-before: always;
+  }
+  
+  /* Remove backgrounds and borders for better printing */
+  .print-no-background {
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* Ensure text is black for best contrast in printing */
+  body {
+    color: black !important;
+  }
+  
+  /* Ensure tables print completely */
+  table, tr, td, th, tbody, thead, tfoot {
+    page-break-inside: avoid !important;
+  }
+  
+  /* Ensure all URLs are visible in print */
+  a[href]:after {
+    content: " (" attr(href) ")";
+  }
+}

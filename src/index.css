@@ -1,0 +1,115 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 120 100% 22%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 250 95% 76%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 120 100% 22%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 120 100% 22%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 120 100% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 120 100% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 120 100% 30%;
+    --sidebar-ring: 120 100% 22%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
+}
+
+@layer components {
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .data-table {
+    @apply w-full border-collapse;
+  }
+
+  .data-table th {
+    @apply bg-muted p-3 text-left text-sm font-medium text-muted-foreground;
+  }
+
+  .data-table td {
+    @apply p-3 text-sm border-b border-muted;
+  }
+
+  .card-dashboard {
+    @apply bg-white rounded-lg shadow-md p-4 transition-all duration-300 hover:shadow-lg;
+  }
+
+  .input-currency::before {
+    content: "R$";
+    @apply mr-1;
+  }
+
+  /* Fix select positioning */
+  [data-radix-select-content] {
+    z-index: 9999 !important;
+    position: fixed !important;
+  }
+  
+  /* Ensure proper positioning for select content */
+  [data-radix-popper-content-wrapper] {
+    z-index: 9999 !important;
+  }
+}
