@@ -199,10 +199,10 @@ const MovimentoForm = ({ movimento, isEdit }: MovimentoFormProps) => {
 
               <FormField
                 control={form.control}
-                name="comissaoRetida"
+                name="premios"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Comissão Retida (R$)</FormLabel>
+                    <FormLabel>Prêmios (R$)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -219,10 +219,10 @@ const MovimentoForm = ({ movimento, isEdit }: MovimentoFormProps) => {
 
               <FormField
                 control={form.control}
-                name="premios"
+                name="comissaoRetida"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Prêmios (R$)</FormLabel>
+                    <FormLabel>Comissão Retida (R$)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -253,7 +253,7 @@ const MovimentoForm = ({ movimento, isEdit }: MovimentoFormProps) => {
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Calculado automaticamente <br/>
-                  (Vendas - Comissão - Comissão Retida - Prêmios)
+                  (Vendas - Comissão - Prêmios - Comissão Retida)
                 </div>
               </div>
             </div>

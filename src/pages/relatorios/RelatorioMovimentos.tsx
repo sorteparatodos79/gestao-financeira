@@ -67,13 +67,21 @@ const RelatorioMovimentos = () => {
   const [descontoDescricaoTemp, setDescontoDescricaoTemp] = useState<string>("");
   
   useEffect(() => {
-    const listaSetoristas = getSetoristas();
-    setSetoristas(listaSetoristas);
+    const carregarDados = async () => {
+      try {
+        const listaSetoristas = await getSetoristas();
+        setSetoristas(listaSetoristas);
+        
+        const listaMovimentos = await getMovimentos();
+        // Ordenar por data (mais recente primeiro)
+        listaMovimentos.sort((a, b) => b.data.getTime() - a.data.getTime());
+        setMovimentos(listaMovimentos);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      }
+    };
     
-    const listaMovimentos = getMovimentos();
-    // Ordenar por data (mais recente primeiro)
-    listaMovimentos.sort((a, b) => b.data.getTime() - a.data.getTime());
-    setMovimentos(listaMovimentos);
+    carregarDados();
   }, []);
   
   useEffect(() => {
@@ -397,7 +405,12 @@ const RelatorioMovimentos = () => {
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Detalhamento de Movimentos</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <span>Detalhamento de Movimentos</span>
+            <span className="text-sm font-normal text-muted-foreground">
+              {movimentosFiltrados.length} registro(s) encontrado(s)
+            </span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {movimentosFiltrados.length > 0 ? (
