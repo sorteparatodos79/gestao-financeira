@@ -156,20 +156,19 @@ const DespesaForm = ({ despesa, isEdit }: DespesaFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipo de Despesa</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de despesa" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
+                  <FormControl>
+                    <SimpleSelect
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Selecione o tipo de despesa"
+                    >
                       {tiposDespesa.map((tipo) => (
-                        <SelectItem key={tipo} value={tipo}>
+                        <SimpleSelectItem key={tipo} value={tipo}>
                           {tipo}
-                        </SelectItem>
+                        </SimpleSelectItem>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </SimpleSelect>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
