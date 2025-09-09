@@ -353,6 +353,7 @@ const Index = () => {
       const todosMovimentos = await getMovimentos();
       const todasDespesas = await getDespesas();
       const todosInvestimentos = await getInvestimentos();
+      const listaSetoristas = await getSetoristas();
       
       const movimentosFiltrados = todosMovimentos.filter(movimento => {
         const dataMovimento = new Date(movimento.data);
@@ -384,7 +385,7 @@ const Index = () => {
       valorLiquido: number;
     }> = {};
     
-    setoristas.forEach(setorista => {
+    listaSetoristas.forEach(setorista => {
       resumoSetorista[setorista.id] = {
         id: setorista.id,
         nome: setorista.nome,
