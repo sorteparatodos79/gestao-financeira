@@ -125,12 +125,14 @@ const MovimentosList = () => {
     return movimentosFiltrados.reduce((totais, movimento) => ({
       vendas: totais.vendas + movimento.vendas,
       comissao: totais.comissao + movimento.comissao,
+      comissaoRetida: totais.comissaoRetida + movimento.comissaoRetida,
       premios: totais.premios + movimento.premios,
       despesas: totais.despesas + movimento.despesas,
       valorLiquido: totais.valorLiquido + movimento.valorLiquido
     }), {
       vendas: 0,
       comissao: 0,
+      comissaoRetida: 0,
       premios: 0,
       despesas: 0,
       valorLiquido: 0
@@ -223,6 +225,7 @@ const MovimentosList = () => {
                     <TableHead>Setorista</TableHead>
                     <TableHead className="text-right">Vendas</TableHead>
                     <TableHead className="text-right">Comissão</TableHead>
+                    <TableHead className="text-right">Comissão Retida</TableHead>
                     <TableHead className="text-right">Prêmios</TableHead>
                     <TableHead className="text-right">Despesas</TableHead>
                     <TableHead className="text-right">Líquido</TableHead>
@@ -236,6 +239,7 @@ const MovimentosList = () => {
                       <TableCell>{movimento.setorista?.nome || 'N/A'}</TableCell>
                       <TableCell className="text-right">{formatCurrency(movimento.vendas)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(movimento.comissao)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(movimento.comissaoRetida)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(movimento.premios)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(movimento.despesas)}</TableCell>
                       <TableCell 
@@ -284,6 +288,7 @@ const MovimentosList = () => {
                     <TableCell colSpan={2} className="font-bold">Total</TableCell>
                     <TableCell className="text-right font-bold">{formatCurrency(totais.vendas)}</TableCell>
                     <TableCell className="text-right font-bold">{formatCurrency(totais.comissao)}</TableCell>
+                    <TableCell className="text-right font-bold">{formatCurrency(totais.comissaoRetida)}</TableCell>
                     <TableCell className="text-right font-bold">{formatCurrency(totais.premios)}</TableCell>
                     <TableCell className="text-right font-bold">{formatCurrency(totais.despesas)}</TableCell>
                     <TableCell 
