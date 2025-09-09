@@ -84,6 +84,337 @@ const Index = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const { printHandler } = usePrintHandler(printRef, 'Dashboard Financeiro');
 
+  const handleGeneratePDF = () => {
+    if (!printRef.current) {
+      toast.error('Erro ao gerar PDF: elemento não encontrado');
+      return;
+    }
+
+    // Criar uma nova janela para impressão
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Erro: Não foi possível abrir nova janela');
+      return;
+    }
+
+    // Obter dados para o PDF
+    const totaisSetoristas = calcularTotaisSetoristas();
+    const totaisDiarios = calcularTotaisDiarios();
+    const totalInvestimentos = calcularTotalInvestimentos();
+    const totalDescontos = calculateTotalDiscounts();
+    const resultadoFinal = calcularResultadoFinal(totaisSetoristas.valorLiquido);
+
+    // Formatar data do período
+    const [ano, mes] = filtroMes.split('-');
+    const nomeMes = new Date(parseInt(ano), parseInt(mes) - 1).toLocaleString('pt-BR', { month: 'long' });
+    const periodoFormatado = `${nomeMes} de ${ano}`;
+
+    // Gerar conteúdo das tabelas
+    const tabelaSetoristas = resumoSetoristas.length > 0 ? `
+      <div class="section">
+        <h2>Resumo por Setorista</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Setorista</th>
+              <th class="text-right">Vendas</th>
+              <th class="text-right">Comissão</th>
+              <th class="text-right">Comissão Retida</th>
+              <th class="text-right">Prêmios</th>
+              <th class="text-right">Despesas</th>
+              <th class="text-right">Valor Líquido</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${resumoSetoristas.map(setorista => `
+              <tr>
+                <td>${setorista.nome}</td>
+                <td class="text-right">${formatCurrency(setorista.vendas)}</td>
+                <td class="text-right">${formatCurrency(setorista.comissao)}</td>
+                <td class="text-right">${formatCurrency(setorista.comissaoRetida)}</td>
+                <td class="text-right">${formatCurrency(setorista.premios)}</td>
+                <td class="text-right">${formatCurrency(setorista.despesas)}</td>
+                <td class="text-right ${setorista.valorLiquido >= 0 ? 'positive' : 'negative'}">${formatCurrency(setorista.valorLiquido)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td><strong>TOTAIS</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.vendas)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.comissao)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.comissaoRetida)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.premios)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.despesas)}</strong></td>
+              <td class="text-right ${totaisSetoristas.valorLiquido >= 0 ? 'positive' : 'negative'}"><strong>${formatCurrency(totaisSetoristas.valorLiquido)}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    ` : '<div class="section"><p class="no-data">Nenhum movimento encontrado para o período selecionado.</p></div>';
+
+    const tabelaDiaria = resumoDiario.length > 0 ? `
+      <div class="section">
+        <h2>Resumo por Dia</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th class="text-right">Vendas</th>
+              <th class="text-right">Comissão</th>
+              <th class="text-right">Comissão Retida</th>
+              <th class="text-right">Prêmios</th>
+              <th class="text-right">Despesas</th>
+              <th class="text-right">Valor Líquido</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${resumoDiario.map(dia => `
+              <tr>
+                <td>${dia.data}</td>
+                <td class="text-right">${formatCurrency(dia.vendas)}</td>
+                <td class="text-right">${formatCurrency(dia.comissao)}</td>
+                <td class="text-right">${formatCurrency(dia.comissaoRetida)}</td>
+                <td class="text-right">${formatCurrency(dia.premios)}</td>
+                <td class="text-right">${formatCurrency(dia.despesas)}</td>
+                <td class="text-right ${dia.valorLiquido >= 0 ? 'positive' : 'negative'}">${formatCurrency(dia.valorLiquido)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td><strong>TOTAIS</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisDiarios.vendas)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisDiarios.comissao)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisDiarios.comissaoRetida)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisDiarios.premios)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totaisDiarios.despesas)}</strong></td>
+              <td class="text-right ${totaisDiarios.valorLiquido >= 0 ? 'positive' : 'negative'}"><strong>${formatCurrency(totaisDiarios.valorLiquido)}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    ` : '<div class="section"><p class="no-data">Nenhum movimento encontrado para o período selecionado.</p></div>';
+
+    // Adicionar estilos CSS otimizados para PDF
+    const styles = `
+      <style>
+        * { box-sizing: border-box; }
+        body { 
+          margin: 0; 
+          padding: 20px; 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 12px;
+          line-height: 1.4;
+          color: #333;
+        }
+        
+        .header {
+          text-align: center;
+          margin-bottom: 30px;
+          padding-bottom: 20px;
+          border-bottom: 2px solid #2563eb;
+        }
+        
+        .header h1 {
+          font-size: 28px;
+          margin: 0 0 10px 0;
+          color: #1e40af;
+          font-weight: 700;
+        }
+        
+        .header .period {
+          font-size: 16px;
+          color: #6b7280;
+          margin: 5px 0;
+        }
+        
+        .header .date {
+          font-size: 14px;
+          color: #9ca3af;
+          margin: 0;
+        }
+        
+        .section {
+          margin-bottom: 30px;
+          page-break-inside: avoid;
+        }
+        
+        .section h2 {
+          font-size: 18px;
+          color: #1f2937;
+          margin: 0 0 15px 0;
+          padding: 10px 0;
+          border-bottom: 1px solid #e5e7eb;
+          font-weight: 600;
+        }
+        
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+          font-size: 11px;
+        }
+        
+        .data-table th {
+          background-color: #f8fafc;
+          color: #374151;
+          font-weight: 600;
+          padding: 8px 6px;
+          text-align: left;
+          border: 1px solid #d1d5db;
+          font-size: 10px;
+        }
+        
+        .data-table td {
+          padding: 6px;
+          border: 1px solid #e5e7eb;
+          vertical-align: top;
+        }
+        
+        .data-table tbody tr:nth-child(even) {
+          background-color: #f9fafb;
+        }
+        
+        .data-table tbody tr:hover {
+          background-color: #f3f4f6;
+        }
+        
+        .total-row {
+          background-color: #1f2937 !important;
+          color: white !important;
+          font-weight: 600;
+        }
+        
+        .total-row td {
+          border-color: #374151 !important;
+        }
+        
+        .text-right { text-align: right; }
+        .positive { color: #059669; font-weight: 600; }
+        .negative { color: #dc2626; font-weight: 600; }
+        
+        .summary {
+          background-color: #f8fafc;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 20px;
+          margin-top: 20px;
+        }
+        
+        .summary h3 {
+          font-size: 16px;
+          color: #1f2937;
+          margin: 0 0 15px 0;
+          font-weight: 600;
+        }
+        
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 0;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .summary-row:last-child {
+          border-bottom: none;
+          font-weight: 700;
+          font-size: 14px;
+          padding-top: 12px;
+          margin-top: 8px;
+          border-top: 2px solid #d1d5db;
+        }
+        
+        .summary-label {
+          font-weight: 500;
+          color: #374151;
+        }
+        
+        .summary-value {
+          font-weight: 600;
+          color: #1f2937;
+        }
+        
+        .no-data {
+          text-align: center;
+          color: #6b7280;
+          font-style: italic;
+          padding: 40px;
+          background-color: #f9fafb;
+          border: 1px dashed #d1d5db;
+          border-radius: 8px;
+        }
+        
+        @media print {
+          body { margin: 0; padding: 15px; }
+          .section { page-break-inside: avoid; }
+          .data-table { font-size: 10px; }
+          .data-table th, .data-table td { padding: 4px; }
+        }
+      </style>
+    `;
+
+    // Montar o HTML completo e organizado
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Dashboard Financeiro - ${periodoFormatado}</title>
+          <meta charset="utf-8">
+          ${styles}
+        </head>
+        <body>
+          <div class="header">
+            <h1>Dashboard Financeiro</h1>
+            <div class="period">Período: ${periodoFormatado}</div>
+            <div class="date">Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</div>
+          </div>
+
+          ${tabelaSetoristas}
+          ${tabelaDiaria}
+
+          <div class="summary">
+            <h3>Resumo Final</h3>
+            <div class="summary-row">
+              <span class="summary-label">Valor Líquido Total:</span>
+              <span class="summary-value ${totaisSetoristas.valorLiquido >= 0 ? 'positive' : 'negative'}">${formatCurrency(totaisSetoristas.valorLiquido)}</span>
+            </div>
+            ${mostrarInvestimentos ? `
+              <div class="summary-row">
+                <span class="summary-label">(-) Investimentos:</span>
+                <span class="summary-value negative">-${formatCurrency(totalInvestimentos)}</span>
+              </div>
+            ` : ''}
+            ${totalDescontos > 0 ? `
+              <div class="summary-row">
+                <span class="summary-label">(-) Descontos Extras:</span>
+                <span class="summary-value negative">-${formatCurrency(totalDescontos)}</span>
+              </div>
+            ` : ''}
+            <div class="summary-row">
+              <span class="summary-label">RESULTADO FINAL:</span>
+              <span class="summary-value ${resultadoFinal >= 0 ? 'positive' : 'negative'}">${formatCurrency(resultadoFinal)}</span>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    // Escrever o conteúdo na nova janela
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    // Aguardar o carregamento e imprimir automaticamente
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+        toast.success('PDF gerado e baixado com sucesso!');
+      }, 500);
+    };
+  };
+
   const handleAddNewDiscount = () => {
     setEditingDiscountId('new');
     setTempDiscountValue("0");
@@ -496,11 +827,11 @@ const Index = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={printHandler}>
+          <Button variant="outline" onClick={printHandler as any}>
             <PrinterIcon className="mr-2 h-4 w-4" />
             Imprimir
           </Button>
-          <Button variant="default" onClick={printHandler}>
+          <Button variant="default" onClick={handleGeneratePDF}>
             <DownloadIcon className="mr-2 h-4 w-4" />
             Gerar PDF
           </Button>
