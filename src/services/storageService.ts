@@ -1,5 +1,6 @@
 // Serviço de armazenamento usando Supabase
 import { Despesa, Investimento, MovimentoFinanceiro, Setorista, Usuario } from "@/types/models";
+import { parseDatabaseDate } from "@/utils/formatters";
 import { 
   setoristasService, 
   despesasService, 
@@ -88,7 +89,7 @@ export const getDespesas = async (): Promise<Despesa[]> => {
     
     return data?.map(despesa => ({
       id: despesa.id,
-      data: new Date(despesa.data),
+      data: parseDatabaseDate(despesa.data),
       tipoDespesa: despesa.tipo_despesa as any,
       setoristaId: despesa.setorista_id,
       setorista: despesa.setoristas ? {
@@ -119,7 +120,7 @@ export const addDespesa = async (despesa: Omit<Despesa, 'id'>): Promise<Despesa>
     
     return {
       id: data.id,
-      data: new Date(data.data),
+      data: parseDatabaseDate(data.data),
       tipoDespesa: data.tipo_despesa as any,
       setoristaId: data.setorista_id,
       setorista: data.setoristas ? {
@@ -150,7 +151,7 @@ export const updateDespesa = async (despesa: Despesa): Promise<Despesa> => {
     
     return {
       id: data.id,
-      data: new Date(data.data),
+      data: parseDatabaseDate(data.data),
       tipoDespesa: data.tipo_despesa as any,
       setoristaId: data.setorista_id,
       setorista: data.setoristas ? {
@@ -185,7 +186,7 @@ export const getMovimentos = async (): Promise<MovimentoFinanceiro[]> => {
     
     return data?.map(movimento => ({
       id: movimento.id,
-      data: new Date(movimento.data),
+      data: parseDatabaseDate(movimento.data),
       setoristaId: movimento.setorista_id,
       setorista: movimento.setoristas ? {
         id: movimento.setoristas.id,
@@ -222,7 +223,7 @@ export const addMovimento = async (movimento: Omit<MovimentoFinanceiro, 'id'>): 
     
     return {
       id: data.id,
-      data: new Date(data.data),
+      data: parseDatabaseDate(data.data),
       setoristaId: data.setorista_id,
       setorista: data.setoristas ? {
         id: data.setoristas.id,
@@ -259,7 +260,7 @@ export const updateMovimento = async (movimento: MovimentoFinanceiro): Promise<M
     
     return {
       id: data.id,
-      data: new Date(data.data),
+      data: parseDatabaseDate(data.data),
       setoristaId: data.setorista_id,
       setorista: data.setoristas ? {
         id: data.setoristas.id,
@@ -297,7 +298,7 @@ export const getInvestimentos = async (): Promise<Investimento[]> => {
     
     return data?.map(investimento => ({
       id: investimento.id,
-      data: new Date(investimento.data),
+      data: parseDatabaseDate(investimento.data),
       setoristaId: investimento.setorista_id,
       setorista: investimento.setoristas ? {
         id: investimento.setoristas.id,
@@ -328,7 +329,7 @@ export const addInvestimento = async (investimento: Omit<Investimento, 'id'>): P
     
     return {
       id: data.id,
-      data: new Date(data.data),
+      data: parseDatabaseDate(data.data),
       setoristaId: data.setorista_id,
       setorista: data.setoristas ? {
         id: data.setoristas.id,
@@ -359,7 +360,7 @@ export const updateInvestimento = async (investimento: Investimento): Promise<In
     
     return {
       id: data.id,
-      data: new Date(data.data),
+      data: parseDatabaseDate(data.data),
       setoristaId: data.setorista_id,
       setorista: data.setoristas ? {
         id: data.setoristas.id,
@@ -497,7 +498,7 @@ export const getDespesaById = async (id: string): Promise<Despesa | null> => {
     
     return {
       id: data.id,
-      data: new Date(data.data),
+      data: parseDatabaseDate(data.data),
       tipoDespesa: data.tipo_despesa as any,
       setoristaId: data.setorista_id,
       setorista: data.setoristas ? {
@@ -523,7 +524,7 @@ export const getMovimentoById = async (id: string): Promise<MovimentoFinanceiro 
     
     return {
       id: data.id,
-      data: new Date(data.data),
+      data: parseDatabaseDate(data.data),
       setoristaId: data.setorista_id,
       setorista: data.setoristas ? {
         id: data.setoristas.id,
@@ -552,7 +553,7 @@ export const getInvestimentoById = async (id: string): Promise<Investimento | nu
     
     return {
       id: data.id,
-      data: new Date(data.data),
+      data: parseDatabaseDate(data.data),
       setoristaId: data.setorista_id,
       setorista: data.setoristas ? {
         id: data.setoristas.id,
