@@ -103,6 +103,8 @@ const Index = () => {
     const totalInvestimentos = calcularTotalInvestimentos();
     const totalDescontos = calculateTotalDiscounts();
     const resultadoFinal = calcularResultadoFinal(totaisSetoristas.valorLiquido);
+    const porcentagensSetoristas = calcularPorcentagens(totaisSetoristas);
+    const porcentagensDiarios = calcularPorcentagens(totaisDiarios);
 
     // Formatar data do período
     const [ano, mes] = filtroMes.split('-');
@@ -141,12 +143,30 @@ const Index = () => {
           <tfoot>
             <tr class="total-row">
               <td><strong>TOTAIS</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.vendas)}</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.comissao)}</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.comissaoRetida)}</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.premios)}</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisSetoristas.despesas)}</strong></td>
-              <td class="text-right ${totaisSetoristas.valorLiquido >= 0 ? 'positive' : 'negative'}"><strong>${formatCurrency(totaisSetoristas.valorLiquido)}</strong></td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisSetoristas.vendas)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.vendas}</div>
+              </td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisSetoristas.comissao)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.comissao}</div>
+              </td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisSetoristas.comissaoRetida)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.comissaoRetida}</div>
+              </td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisSetoristas.premios)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.premios}</div>
+              </td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisSetoristas.despesas)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.despesas}</div>
+              </td>
+              <td class="text-right ${totaisSetoristas.valorLiquido >= 0 ? 'positive' : 'negative'}">
+                <strong>${formatCurrency(totaisSetoristas.valorLiquido)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.valorLiquido}</div>
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -184,12 +204,30 @@ const Index = () => {
           <tfoot>
             <tr class="total-row">
               <td><strong>TOTAIS</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisDiarios.vendas)}</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisDiarios.comissao)}</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisDiarios.comissaoRetida)}</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisDiarios.premios)}</strong></td>
-              <td class="text-right"><strong>${formatCurrency(totaisDiarios.despesas)}</strong></td>
-              <td class="text-right ${totaisDiarios.valorLiquido >= 0 ? 'positive' : 'negative'}"><strong>${formatCurrency(totaisDiarios.valorLiquido)}</strong></td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisDiarios.vendas)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.vendas}</div>
+              </td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisDiarios.comissao)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.comissao}</div>
+              </td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisDiarios.comissaoRetida)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.comissaoRetida}</div>
+              </td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisDiarios.premios)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.premios}</div>
+              </td>
+              <td class="text-right">
+                <strong>${formatCurrency(totaisDiarios.despesas)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.despesas}</div>
+              </td>
+              <td class="text-right ${totaisDiarios.valorLiquido >= 0 ? 'positive' : 'negative'}">
+                <strong>${formatCurrency(totaisDiarios.valorLiquido)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.valorLiquido}</div>
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -204,9 +242,10 @@ const Index = () => {
           margin: 0; 
           padding: 20px; 
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          font-size: 12px;
+          font-size: 13px;
           line-height: 1.4;
-          color: #333;
+          color: #000;
+          font-weight: 500;
         }
         
         .header {
@@ -242,11 +281,11 @@ const Index = () => {
         
         .section h2 {
           font-size: 18px;
-          color: #1f2937;
+          color: #000;
           margin: 0 0 15px 0;
           padding: 10px 0;
-          border-bottom: 1px solid #e5e7eb;
-          font-weight: 600;
+          border-bottom: 2px solid #000;
+          font-weight: 700;
         }
         
         .data-table {
@@ -258,18 +297,20 @@ const Index = () => {
         
         .data-table th {
           background-color: #f8fafc;
-          color: #374151;
-          font-weight: 600;
+          color: #000;
+          font-weight: 700;
           padding: 8px 6px;
           text-align: left;
-          border: 1px solid #d1d5db;
-          font-size: 10px;
+          border: 1px solid #000;
+          font-size: 11px;
         }
         
         .data-table td {
           padding: 6px;
-          border: 1px solid #e5e7eb;
+          border: 1px solid #000;
           vertical-align: top;
+          font-weight: 500;
+          color: #000;
         }
         
         .data-table tbody tr:nth-child(even) {
@@ -281,22 +322,23 @@ const Index = () => {
         }
         
         .total-row {
-          background-color: #1f2937 !important;
+          background-color: #000 !important;
           color: white !important;
-          font-weight: 600;
+          font-weight: 700;
         }
         
         .total-row td {
-          border-color: #374151 !important;
+          border-color: #000 !important;
+          font-weight: 700;
         }
         
         .text-right { text-align: right; }
-        .positive { color: #059669; font-weight: 600; }
-        .negative { color: #dc2626; font-weight: 600; }
+        .positive { color: #059669; font-weight: 700; }
+        .negative { color: #dc2626; font-weight: 700; }
         
         .summary {
           background-color: #f8fafc;
-          border: 1px solid #e5e7eb;
+          border: 2px solid #000;
           border-radius: 8px;
           padding: 20px;
           margin-top: 20px;
@@ -304,9 +346,9 @@ const Index = () => {
         
         .summary h3 {
           font-size: 16px;
-          color: #1f2937;
+          color: #000;
           margin: 0 0 15px 0;
-          font-weight: 600;
+          font-weight: 700;
         }
         
         .summary-row {
@@ -327,13 +369,13 @@ const Index = () => {
         }
         
         .summary-label {
-          font-weight: 500;
-          color: #374151;
+          font-weight: 600;
+          color: #000;
         }
         
         .summary-value {
-          font-weight: 600;
-          color: #1f2937;
+          font-weight: 700;
+          color: #000;
         }
         
         .no-data {
@@ -347,10 +389,12 @@ const Index = () => {
         }
         
         @media print {
-          body { margin: 0; padding: 15px; }
+          body { margin: 0; padding: 15px; font-weight: 600; }
           .section { page-break-inside: avoid; }
-          .data-table { font-size: 10px; }
-          .data-table th, .data-table td { padding: 4px; }
+          .data-table { font-size: 11px; font-weight: 600; }
+          .data-table th, .data-table td { padding: 4px; font-weight: 600; }
+          .data-table th { font-weight: 700; }
+          .total-row { font-weight: 700; }
         }
       </style>
     `;
@@ -536,6 +580,29 @@ const Index = () => {
 
   const calcularTotalInvestimentos = () => {
     return investimentos.reduce((total, investimento) => total + investimento.valor, 0);
+  };
+
+  const calcularPorcentagens = (totais: any) => {
+    const totalVendas = totais.vendas;
+    if (totalVendas === 0) {
+      return {
+        vendas: "0%",
+        comissao: "0%", 
+        comissaoRetida: "0%",
+        premios: "0%",
+        despesas: "0%",
+        valorLiquido: "0%"
+      };
+    }
+
+    return {
+      vendas: "100%", // Total de vendas é sempre 100%
+      comissao: `${((totais.comissao / totalVendas) * 100).toFixed(1)}%`,
+      comissaoRetida: `${((totais.comissaoRetida / totalVendas) * 100).toFixed(1)}%`,
+      premios: `${((totais.premios / totalVendas) * 100).toFixed(1)}%`,
+      despesas: `${((totais.despesas / totalVendas) * 100).toFixed(1)}%`,
+      valorLiquido: `${((totais.valorLiquido / totalVendas) * 100).toFixed(1)}%`
+    };
   };
 
   const renderDiscountsSection = () => (
@@ -912,15 +979,43 @@ const Index = () => {
                 <TableFooter>
                   <TableRow>
                     <TableCell className="font-bold">TOTAIS</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisSetoristas.vendas)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisSetoristas.comissao)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisSetoristas.comissaoRetida)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisSetoristas.premios)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisSetoristas.despesas)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisSetoristas.vendas)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).vendas}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisSetoristas.comissao)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).comissao}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisSetoristas.comissaoRetida)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).comissaoRetida}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisSetoristas.premios)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).premios}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisSetoristas.despesas)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).despesas}</span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right font-bold" style={{ 
                       color: totaisSetoristas.valorLiquido >= 0 ? 'var(--success)' : 'var(--destructive)' 
                     }}>
-                      {formatCurrency(totaisSetoristas.valorLiquido)}
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisSetoristas.valorLiquido)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).valorLiquido}</span>
+                      </div>
                     </TableCell>
                   </TableRow>
                 </TableFooter>
@@ -1017,15 +1112,43 @@ const Index = () => {
                 <TableFooter>
                   <TableRow>
                     <TableCell className="font-bold">TOTAIS</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisDiarios.vendas)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisDiarios.comissao)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisDiarios.comissaoRetida)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisDiarios.premios)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(totaisDiarios.despesas)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisDiarios.vendas)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).vendas}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisDiarios.comissao)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).comissao}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisDiarios.comissaoRetida)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).comissaoRetida}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisDiarios.premios)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).premios}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisDiarios.despesas)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).despesas}</span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right font-bold" style={{ 
                       color: totaisDiarios.valorLiquido >= 0 ? 'var(--success)' : 'var(--destructive)' 
                     }}>
-                      {formatCurrency(totaisDiarios.valorLiquido)}
+                      <div className="flex flex-col">
+                        <span>{formatCurrency(totaisDiarios.valorLiquido)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).valorLiquido}</span>
+                      </div>
                     </TableCell>
                   </TableRow>
                 </TableFooter>
