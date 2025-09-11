@@ -61,8 +61,8 @@ const RelatorioDespesas = () => {
     setSetoristas(listaSetoristas);
     
     const listaDespesas = getDespesas();
-    // Ordenar por data (mais recente primeiro)
-    listaDespesas.sort((a, b) => b.data.getTime() - a.data.getTime());
+    // Ordenar por data (mais antigo primeiro)
+    listaDespesas.sort((a, b) => a.data.getTime() - b.data.getTime());
     setDespesas(listaDespesas);
     setDespesasFiltradas(listaDespesas);
   }, []);

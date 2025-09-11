@@ -73,8 +73,8 @@ const RelatorioMovimentos = () => {
         setSetoristas(listaSetoristas);
         
         const listaMovimentos = await getMovimentos();
-        // Ordenar por data (mais recente primeiro)
-        listaMovimentos.sort((a, b) => b.data.getTime() - a.data.getTime());
+        // Ordenar por data (mais antigo primeiro)
+        listaMovimentos.sort((a, b) => a.data.getTime() - b.data.getTime());
         setMovimentos(listaMovimentos);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);

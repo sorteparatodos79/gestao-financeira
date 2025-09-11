@@ -396,8 +396,8 @@ const DespesasList = () => {
         };
       });
       
-      // Ordenar por data (mais recente primeiro)
-      despesasComSetorista.sort((a, b) => b.data.getTime() - a.data.getTime());
+      // Ordenar por data (mais antigo primeiro)
+      despesasComSetorista.sort((a, b) => a.data.getTime() - b.data.getTime());
       
       setDespesas(despesasComSetorista);
       setDespesasFiltradas(despesasComSetorista);

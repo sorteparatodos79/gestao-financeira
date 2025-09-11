@@ -63,8 +63,8 @@ const RelatorioInvestimentos = () => {
       };
     });
     
-    // Ordenar por data (mais recente primeiro)
-    investimentosComSetorista.sort((a, b) => b.data.getTime() - a.data.getTime());
+    // Ordenar por data (mais antigo primeiro)
+    investimentosComSetorista.sort((a, b) => a.data.getTime() - b.data.getTime());
     
     setInvestimentos(investimentosComSetorista);
     setInvestimentosFiltrados(investimentosComSetorista);
