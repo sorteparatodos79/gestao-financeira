@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,10 +31,326 @@ const InvestimentosList = () => {
   const [investimentos, setInvestimentos] = useState<Investimento[]>([]);
   const [investimentosFiltrados, setInvestimentosFiltrados] = useState<Investimento[]>([]);
   const [setoristas, setSetoristas] = useState<Setorista[]>([]);
-  const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {
-    window.print();
+    // Verificar se há filtros aplicados
+    const temFiltros = dataInicial || dataFinal || (setoristaId && setoristaId !== 'all') || (tipoInvestimento && tipoInvestimento !== 'all');
+    
+    // Determinar período para exibição
+    let periodo = 'Todos os investimentos';
+    if (dataInicial && dataFinal) {
+      const dataIni = new Date(dataInicial).toLocaleDateString('pt-BR');
+      const dataFim = new Date(dataFinal).toLocaleDateString('pt-BR');
+      periodo = dataIni === dataFim ? dataIni : `${dataIni} a ${dataFim}`;
+    } else if (dataInicial) {
+      periodo = `A partir de ${new Date(dataInicial).toLocaleDateString('pt-BR')}`;
+    } else if (dataFinal) {
+      periodo = `Até ${new Date(dataFinal).toLocaleDateString('pt-BR')}`;
+    }
+
+    // CSS para impressão
+    const styles = `
+      <style>
+        @media print {
+          * { margin: 0 !important; padding: 0 !important; }
+          body { 
+            margin: 0 !important; 
+            padding: 8px !important; 
+            font-weight: 600; 
+            -webkit-print-color-adjust: exact;
+          }
+          .header { 
+            margin: 0 0 10px 0 !important; 
+            padding: 0 0 6px 0 !important; 
+            page-break-inside: avoid !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            height: auto !important;
+          }
+          .header h1 { 
+            font-size: 22px !important; 
+            margin: 0 0 6px 0 !important; 
+            padding: 0 !important;
+          }
+          .header .period { 
+            font-size: 13px !important; 
+            margin: 3px 0 !important; 
+            padding: 0 !important;
+          }
+          .header .date { 
+            font-size: 11px !important; 
+            margin: 0 !important; 
+            padding: 0 !important;
+          }
+          .section { 
+            page-break-inside: avoid !important; 
+            page-break-before: avoid !important;
+            break-before: avoid !important;
+            margin: 0 0 12px 0 !important; 
+            padding: 0 !important;
+          }
+          .section.no-filters { 
+            margin: 0 0 12px 0 !important; 
+            padding: 0 !important;
+            page-break-before: avoid !important;
+            break-before: avoid !important;
+          }
+          .section h2 { 
+            font-size: 15px !important; 
+            margin: 0 0 8px 0 !important; 
+            padding: 6px 0 !important; 
+          }
+          .data-table { 
+            width: 100% !important; 
+            border-collapse: collapse !important; 
+            margin: 0 0 15px 0 !important; 
+            font-size: 10px !important;
+            page-break-before: avoid !important;
+            break-before: avoid !important;
+          }
+          .data-table th, .data-table td { 
+            padding: 3px !important; 
+            font-weight: 600; 
+          }
+          .data-table th { font-weight: 700 !important; }
+          .total-row { 
+            font-weight: 700 !important; 
+            background-color: #f8fafc !important;
+            color: #000 !important;
+            page-break-before: avoid !important;
+            break-before: avoid !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .filters { 
+            font-size: 10px !important; 
+            margin: 0 0 8px 0 !important; 
+            padding: 0 !important;
+          }
+        }
+        
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          line-height: 1.4;
+          color: #000;
+          font-weight: 500;
+        }
+        
+        .header {
+          text-align: center;
+          margin: 0 0 15px 0;
+          padding: 0 0 10px 0;
+          border-bottom: 2px solid #2563eb;
+          page-break-after: avoid;
+          break-after: avoid;
+        }
+        
+        .header h1 {
+          font-size: 24px;
+          margin: 0 0 6px 0;
+          color: #1e40af;
+          font-weight: 700;
+        }
+        
+        .header .period {
+          font-size: 14px;
+          color: #6b7280;
+          margin: 3px 0;
+        }
+        
+        .header .date {
+          font-size: 12px;
+          color: #9ca3af;
+          margin: 0;
+        }
+        
+        .section {
+          margin-bottom: 20px;
+          page-break-inside: avoid;
+          page-break-before: avoid;
+          break-before: avoid;
+        }
+        
+        .section.no-filters {
+          margin-top: 0;
+          padding-top: 0;
+          page-break-before: avoid;
+          break-before: avoid;
+        }
+        
+        .section h2 {
+          font-size: 18px;
+          color: #000;
+          margin: 0 0 15px 0;
+          padding: 0;
+          font-weight: 600;
+        }
+        
+        .filters {
+          font-size: 12px;
+          color: #6b7280;
+          margin: 0 0 15px 0;
+          padding: 0;
+          font-style: italic;
+        }
+        
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+          font-size: 11px;
+          page-break-before: avoid;
+          break-before: avoid;
+        }
+        
+        .data-table tbody {
+          page-break-inside: auto;
+          break-inside: auto;
+        }
+        
+        .data-table tbody tr:nth-last-child(-n+3) {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        .data-table th {
+          background-color: #f8fafc;
+          color: #000;
+          font-weight: 700;
+          padding: 8px 6px;
+          text-align: left;
+          border: 1px solid #000;
+          font-size: 11px;
+        }
+        
+        .data-table td {
+          padding: 6px;
+          border: 1px solid #000;
+          vertical-align: top;
+          font-weight: 500;
+          color: #000;
+        }
+        
+        .data-table tbody tr:nth-child(even) {
+          background-color: #f9fafb;
+        }
+        
+        .total-row {
+          background-color: #f8fafc !important;
+          color: #000 !important;
+          font-weight: 700;
+          border-top: 2px solid #000 !important;
+          page-break-before: avoid;
+          break-before: avoid;
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        .total-row td {
+          border: 1px solid #000 !important;
+          font-weight: 700;
+          background-color: #f8fafc !important;
+        }
+        
+        .text-right { text-align: right; }
+        
+        .no-data {
+          text-align: center;
+          color: #6b7280;
+          font-style: italic;
+          padding: 40px;
+          background-color: #f9fafb;
+          border: 1px dashed #d1d5db;
+          border-radius: 8px;
+        }
+      </style>
+    `;
+
+    // HTML completo
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html style="margin: 0; padding: 0; height: auto;">
+        <head>
+          <title>Lista de Investimentos</title>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          ${styles}
+        </head>
+        <body style="margin: 0; padding: 0;">
+          <div class="header">
+            <h1>Lista de Investimentos</h1>
+            <div class="period">${periodo}</div>
+            <div class="date">Gerado em: ${new Date().toLocaleString('pt-BR')}</div>
+          </div>
+          
+          <div class="section ${!temFiltros ? 'no-filters' : ''}">
+            <h2>Lista de Investimentos</h2>
+            ${temFiltros ? `
+              <div class="filters">
+                Filtros aplicados: 
+                ${dataInicial ? `Data inicial: ${new Date(dataInicial).toLocaleDateString('pt-BR')}` : ''}
+                ${dataInicial && dataFinal ? ', ' : ''}
+                ${dataFinal ? `Data final: ${new Date(dataFinal).toLocaleDateString('pt-BR')}` : ''}
+                ${(dataInicial || dataFinal) && (setoristaId && setoristaId !== 'all') ? ', ' : ''}
+                ${setoristaId && setoristaId !== 'all' ? `Setorista: ${setoristas.find(s => s.id === setoristaId)?.nome || 'N/A'}` : ''}
+                ${((dataInicial || dataFinal) || (setoristaId && setoristaId !== 'all')) && (tipoInvestimento && tipoInvestimento !== 'all') ? ', ' : ''}
+                ${tipoInvestimento && tipoInvestimento !== 'all' ? `Tipo: ${tipoInvestimento}` : ''}
+              </div>
+            ` : ''}
+            
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Setorista</th>
+                  <th>Tipo</th>
+                  <th class="text-right">Valor</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${investimentosFiltrados.length > 0 ? investimentosFiltrados.map(investimento => `
+                  <tr>
+                    <td>${formatDate(investimento.data)}</td>
+                    <td>${investimento.setorista?.nome || 'N/A'}</td>
+                    <td>${investimento.tipoInvestimento}</td>
+                    <td class="text-right">${formatCurrency(investimento.valor)}</td>
+                    <td>${investimento.descricao || '—'}</td>
+                  </tr>
+                `).join('') : `
+                  <tr>
+                    <td colspan="5" class="no-data">Nenhum investimento encontrado com os filtros aplicados.</td>
+                  </tr>
+                `}
+              </tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td colspan="3" class="font-bold">TOTAL</td>
+                  <td class="text-right font-bold">${formatCurrency(calcularTotal())}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </body>
+      </html>
+    `;
+
+    // Criar nova janela para impressão
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      printWindow.focus();
+      
+      // Aguardar o carregamento e imprimir
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+        }, 250);
+      };
+    }
   };
   
   // Filtros
@@ -82,14 +398,21 @@ const InvestimentosList = () => {
     let resultado = [...investimentos];
 
     if (dataInicial) {
-      const dataIni = new Date(dataInicial);
-      resultado = resultado.filter(i => i.data >= dataIni);
+      const dataIni = new Date(dataInicial + 'T00:00:00'); // Força horário local
+      resultado = resultado.filter(i => {
+        const dataCompara = new Date(i.data);
+        dataCompara.setHours(0, 0, 0, 0);
+        return dataCompara >= dataIni;
+      });
     }
 
     if (dataFinal) {
-      const dataFim = new Date(dataFinal);
-      dataFim.setHours(23, 59, 59);
-      resultado = resultado.filter(i => i.data <= dataFim);
+      const dataFim = new Date(dataFinal + 'T23:59:59'); // Força horário local
+      resultado = resultado.filter(i => {
+        const dataCompara = new Date(i.data);
+        dataCompara.setHours(0, 0, 0, 0);
+        return dataCompara <= dataFim;
+      });
     }
 
     if (setoristaId && setoristaId !== 'all') {
@@ -200,7 +523,7 @@ const InvestimentosList = () => {
         </CardContent>
       </Card>
 
-      <div ref={printRef} className="p-4">
+      <div className="p-4">
         <Table>
           <TableCaption>
             Lista de investimentos

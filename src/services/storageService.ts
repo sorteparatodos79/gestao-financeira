@@ -84,8 +84,15 @@ export const deleteSetorista = async (id: string): Promise<void> => {
 // Funções para Despesas
 export const getDespesas = async (): Promise<Despesa[]> => {
   try {
+    console.log('Chamando despesasService.getAll()...');
     const { data, error } = await despesasService.getAll();
-    if (error) throw error;
+    
+    if (error) {
+      console.error('Erro do Supabase:', error);
+      throw new Error(`Erro do banco: ${error.message || JSON.stringify(error)}`);
+    }
+    
+    console.log('Dados brutos do Supabase:', data?.length || 0, 'registros');
     
     return data?.map(despesa => ({
       id: despesa.id,
@@ -101,8 +108,8 @@ export const getDespesas = async (): Promise<Despesa[]> => {
       descricao: despesa.descricao
     })) || [];
   } catch (error) {
-    console.error('Erro ao buscar despesas:', error);
-    return [];
+    console.error('Erro detalhado ao buscar despesas:', error);
+    throw error; // Re-throw para que o componente possa capturar
   }
 };
 

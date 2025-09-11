@@ -377,10 +377,15 @@ const DespesasList = () => {
 
   const carregarDados = async () => {
     try {
+      console.log('Iniciando carregamento dos dados...');
+      
       const listaSetoristas = await getSetoristas();
+      console.log('Setoristas carregados:', listaSetoristas.length);
       setSetoristas(listaSetoristas);
       
+      console.log('Carregando despesas...');
       const listaDespesas = await getDespesas();
+      console.log('Despesas carregadas:', listaDespesas.length);
       
       // Adicionar informações do setorista
       const despesasComSetorista = listaDespesas.map(despesa => {
@@ -396,24 +401,47 @@ const DespesasList = () => {
       
       setDespesas(despesasComSetorista);
       setDespesasFiltradas(despesasComSetorista);
+      console.log('Dados carregados com sucesso');
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
-      toast.error('Erro ao carregar dados');
+      console.error('Erro detalhado ao carregar dados:', error);
+      toast.error(`Erro ao carregar dados: ${error.message || 'Erro desconhecido'}`);
     }
   };
 
   const aplicarFiltros = () => {
     let resultado = [...despesas];
 
+    console.log('=== DEBUG FILTROS ===');
+    console.log('Filtro dataInicial:', dataInicial);
+    console.log('Filtro dataFinal:', dataFinal);
+    console.log('Total despesas antes dos filtros:', resultado.length);
+
     if (dataInicial) {
-      const dataIni = new Date(dataInicial);
-      resultado = resultado.filter(d => d.data >= dataIni);
+      const dataIni = new Date(dataInicial + 'T00:00:00'); // Força horário local
+      console.log('Data inicial processada:', dataIni);
+      
+      resultado = resultado.filter(d => {
+        const dataCompara = new Date(d.data);
+        dataCompara.setHours(0, 0, 0, 0);
+        const passa = dataCompara >= dataIni;
+        console.log(`Despesa ${d.id}: ${d.data} (${dataCompara}) >= ${dataIni} = ${passa}`);
+        return passa;
+      });
+      console.log('Despesas após filtro inicial:', resultado.length);
     }
 
     if (dataFinal) {
-      const dataFim = new Date(dataFinal);
-      dataFim.setHours(23, 59, 59);
-      resultado = resultado.filter(d => d.data <= dataFim);
+      const dataFim = new Date(dataFinal + 'T23:59:59'); // Força horário local
+      console.log('Data final processada:', dataFim);
+      
+      resultado = resultado.filter(d => {
+        const dataCompara = new Date(d.data);
+        dataCompara.setHours(0, 0, 0, 0);
+        const passa = dataCompara <= dataFim;
+        console.log(`Despesa ${d.id}: ${d.data} (${dataCompara}) <= ${dataFim} = ${passa}`);
+        return passa;
+      });
+      console.log('Despesas após filtro final:', resultado.length);
     }
 
     if (setoristaId && setoristaId !== 'all') {
@@ -423,6 +451,9 @@ const DespesasList = () => {
     if (tipoDespesa && tipoDespesa !== 'all') {
       resultado = resultado.filter(d => d.tipoDespesa === tipoDespesa);
     }
+
+    console.log('Resultado final:', resultado.length);
+    console.log('===================');
 
     setDespesasFiltradas(resultado);
   };
