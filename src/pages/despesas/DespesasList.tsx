@@ -31,10 +31,334 @@ const DespesasList = () => {
   const [despesasFiltradas, setDespesasFiltradas] = useState<Despesa[]>([]);
   const [setoristas, setSetoristas] = useState<Setorista[]>([]);
   const navigate = useNavigate();
-  const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {
-    window.print();
+    // Criar uma nova janela para impressão
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Erro: Não foi possível abrir nova janela');
+      return;
+    }
+
+    // Obter dados para o PDF
+    const total = calcularTotal();
+    
+    // Formatar período se houver filtros de data
+    const periodoTexto = dataInicial && dataFinal 
+      ? `Período: ${new Date(dataInicial).toLocaleDateString('pt-BR')} a ${new Date(dataFinal).toLocaleDateString('pt-BR')}`
+      : 'Todas as despesas';
+
+    // Formatar filtros ativos
+    const filtrosAtivos = [];
+    if (setoristaId && setoristaId !== 'all') {
+      const setorista = setoristas.find(s => s.id === setoristaId);
+      if (setorista) filtrosAtivos.push(`Setorista: ${setorista.nome}`);
+    }
+    if (tipoDespesa && tipoDespesa !== 'all') {
+      filtrosAtivos.push(`Tipo: ${tipoDespesa}`);
+    }
+    
+    // Debug: verificar se não há filtros aplicados
+    const temFiltros = dataInicial || dataFinal || (setoristaId && setoristaId !== 'all') || (tipoDespesa && tipoDespesa !== 'all');
+
+    // Gerar tabela de despesas
+    const tabelaDespesas = despesasFiltradas.length > 0 ? `
+      <div class="section ${!temFiltros ? 'no-filters' : ''}">
+        <h2>Lista de Despesas</h2>
+        ${temFiltros && filtrosAtivos.length > 0 ? `<p class="filters">Filtros aplicados: ${filtrosAtivos.join(' | ')}</p>` : ''}
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Setorista</th>
+              <th>Tipo</th>
+              <th class="text-right">Valor</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${despesasFiltradas.map(despesa => `
+              <tr>
+                <td>${formatDate(despesa.data)}</td>
+                <td>${despesa.setorista?.nome || 'N/A'}</td>
+                <td>${despesa.tipoDespesa}</td>
+                <td class="text-right">${formatCurrency(despesa.valor)}</td>
+                <td>${despesa.descricao || '—'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="3"><strong>TOTAL</strong></td>
+              <td class="text-right"><strong>${formatCurrency(total)}</strong></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    ` : '<div class="section"><p class="no-data">Nenhuma despesa encontrada com os filtros aplicados.</p></div>';
+
+    // CSS otimizado para impressão
+    const styles = `
+      <style>
+        * { 
+          box-sizing: border-box; 
+          margin: 0;
+          padding: 0;
+        }
+        html, body { 
+          margin: 0 !important; 
+          padding: 0 !important; 
+          height: auto !important;
+        }
+        body { 
+          padding: 15px; 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 13px;
+          line-height: 1.4;
+          color: #000;
+          font-weight: 500;
+        }
+        
+        .header {
+          text-align: center;
+          margin: 0 0 15px 0;
+          padding: 0 0 10px 0;
+          border-bottom: 2px solid #2563eb;
+          page-break-after: avoid;
+          break-after: avoid;
+        }
+        
+        .header h1 {
+          font-size: 24px;
+          margin: 0 0 6px 0;
+          color: #1e40af;
+          font-weight: 700;
+        }
+        
+        .header .period {
+          font-size: 14px;
+          color: #6b7280;
+          margin: 3px 0;
+        }
+        
+        .header .date {
+          font-size: 12px;
+          color: #9ca3af;
+          margin: 0;
+        }
+        
+        .section {
+          margin-bottom: 20px;
+          page-break-inside: avoid;
+          page-break-before: avoid;
+          break-before: avoid;
+        }
+        
+        .section.no-filters {
+          margin-top: 0;
+          padding-top: 0;
+          page-break-before: avoid;
+          break-before: avoid;
+        }
+        
+        .section h2 {
+          font-size: 18px;
+          color: #000;
+          margin: 0 0 15px 0;
+          padding: 10px 0;
+          border-bottom: 2px solid #000;
+          font-weight: 700;
+        }
+        
+        .filters {
+          font-size: 12px;
+          color: #6b7280;
+          margin: 0 0 15px 0;
+          padding: 0;
+          font-style: italic;
+        }
+        
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+          font-size: 11px;
+          page-break-before: avoid;
+          break-before: avoid;
+        }
+        
+        .data-table tbody {
+          page-break-inside: auto;
+          break-inside: auto;
+        }
+        
+        .data-table tbody tr:nth-last-child(-n+3) {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        .data-table th {
+          background-color: #f8fafc;
+          color: #000;
+          font-weight: 700;
+          padding: 8px 6px;
+          text-align: left;
+          border: 1px solid #000;
+          font-size: 11px;
+        }
+        
+        .data-table td {
+          padding: 6px;
+          border: 1px solid #000;
+          vertical-align: top;
+          font-weight: 500;
+          color: #000;
+        }
+        
+        .data-table tbody tr:nth-child(even) {
+          background-color: #f9fafb;
+        }
+        
+        .total-row {
+          background-color: #f8fafc !important;
+          color: #000 !important;
+          font-weight: 700;
+          border-top: 2px solid #000 !important;
+          page-break-before: avoid;
+          break-before: avoid;
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        .total-row td {
+          border: 1px solid #000 !important;
+          font-weight: 700;
+          background-color: #f8fafc !important;
+        }
+        
+        .text-right { text-align: right; }
+        
+        .no-data {
+          text-align: center;
+          color: #6b7280;
+          font-style: italic;
+          padding: 40px;
+          background-color: #f9fafb;
+          border: 1px dashed #d1d5db;
+          border-radius: 8px;
+        }
+        
+        @media print {
+          * { margin: 0 !important; padding: 0 !important; }
+          body { 
+            margin: 0 !important; 
+            padding: 8px !important; 
+            font-weight: 600; 
+            -webkit-print-color-adjust: exact;
+          }
+          .header { 
+            margin: 0 0 10px 0 !important; 
+            padding: 0 0 6px 0 !important; 
+            page-break-inside: avoid !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            height: auto !important;
+          }
+          .header h1 { 
+            font-size: 22px !important; 
+            margin: 0 0 6px 0 !important; 
+            padding: 0 !important;
+          }
+          .header .period { 
+            font-size: 13px !important; 
+            margin: 2px 0 !important; 
+            padding: 0 !important;
+          }
+          .header .date { 
+            font-size: 11px !important; 
+            margin: 0 !important; 
+            padding: 0 !important;
+          }
+          .section { 
+            page-break-inside: avoid !important; 
+            page-break-before: avoid !important;
+            break-before: avoid !important;
+            margin: 0 0 12px 0 !important; 
+            padding: 0 !important;
+          }
+          .section.no-filters { 
+            margin: 0 0 12px 0 !important; 
+            padding: 0 !important;
+            page-break-before: avoid !important;
+            break-before: avoid !important;
+          }
+          .section h2 { 
+            font-size: 15px !important; 
+            margin: 0 0 8px 0 !important; 
+            padding: 6px 0 !important; 
+          }
+          .data-table { 
+            font-size: 9px !important; 
+            font-weight: 600; 
+            margin: 0 !important;
+          }
+          .data-table th, .data-table td { 
+            padding: 3px !important; 
+            font-weight: 600; 
+          }
+          .data-table th { font-weight: 700 !important; }
+          .total-row { 
+            font-weight: 700 !important; 
+            background-color: #f8fafc !important;
+            color: #000 !important;
+            page-break-before: avoid !important;
+            break-before: avoid !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .filters { 
+            font-size: 10px !important; 
+            margin: 0 0 8px 0 !important; 
+            padding: 0 !important;
+          }
+        }
+      </style>
+    `;
+
+    // HTML completo
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html style="margin: 0; padding: 0; height: auto;">
+        <head>
+          <title>Lista de Despesas</title>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          ${styles}
+        </head>
+        <body style="margin: 0; padding: 8px;">
+          <div class="header">
+            <h1>Lista de Despesas</h1>
+            <div class="period">${periodoTexto}</div>
+            <div class="date">Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</div>
+          </div>
+
+          ${tabelaDespesas}
+        </body>
+      </html>
+    `;
+
+    // Escrever conteúdo e imprimir
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+        toast.success('Relatório de despesas gerado com sucesso!');
+      }, 500);
+    };
   };
   
   // Filtros
@@ -209,82 +533,70 @@ const DespesasList = () => {
         </CardContent>
       </Card>
       
-      {/* Conteúdo que será impresso/gerado como PDF */}
-      <div ref={printRef} className="p-4">
-        <div className="print-header mb-8">
-          <h1 className="text-2xl font-bold text-center">Lista de Despesas</h1>
-          {dataInicial && dataFinal && (
-            <p className="text-center text-muted-foreground">
-              Período: {new Date(dataInicial).toLocaleDateString()} a {new Date(dataFinal).toLocaleDateString()}
-            </p>
-          )}
-        </div>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center justify-between">
-              <span>Despesas</span>
-              <span className="text-base font-normal">
-                Total: <strong>{formatCurrency(calcularTotal())}</strong>
-              </span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {despesasFiltradas.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Setorista</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead className="text-center">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {despesasFiltradas.map((despesa) => (
-                    <TableRow key={despesa.id}>
-                      <TableCell>{formatDate(despesa.data)}</TableCell>
-                      <TableCell>{despesa.setorista?.nome || 'N/A'}</TableCell>
-                      <TableCell>{despesa.tipoDespesa}</TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatCurrency(despesa.valor)}
-                      </TableCell>
-                      <TableCell className="max-w-[300px] truncate">
-                        {despesa.descricao || '—'}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex justify-center gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => handleEditar(despesa.id)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDelete(despesa.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-                <TableFooter>
-                  <TableRow>
-                    <TableCell colSpan={4} className="font-bold">TOTAL</TableCell>
-                    <TableCell className="text-right font-bold">
-                      {formatCurrency(calcularTotal())}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center justify-between">
+            <span>Despesas</span>
+            <span className="text-base font-normal">
+              Total: <strong>{formatCurrency(calcularTotal())}</strong>
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {despesasFiltradas.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Setorista</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead className="text-center">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {despesasFiltradas.map((despesa) => (
+                  <TableRow key={despesa.id}>
+                    <TableCell>{formatDate(despesa.data)}</TableCell>
+                    <TableCell>{despesa.setorista?.nome || 'N/A'}</TableCell>
+                    <TableCell>{despesa.tipoDespesa}</TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrency(despesa.valor)}
                     </TableCell>
-                    <TableCell />
+                    <TableCell className="max-w-[300px] truncate">
+                      {despesa.descricao || '—'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditar(despesa.id)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(despesa.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
-                </TableFooter>
-              </Table>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                Nenhuma despesa encontrada com os filtros aplicados.
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TableCell colSpan={4} className="font-bold">TOTAL</TableCell>
+                  <TableCell className="text-right font-bold">
+                    {formatCurrency(calcularTotal())}
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableFooter>
+            </Table>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              Nenhuma despesa encontrada com os filtros aplicados.
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
