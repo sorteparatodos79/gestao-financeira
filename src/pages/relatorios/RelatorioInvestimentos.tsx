@@ -22,16 +22,17 @@ import {
 import { Investimento, Setorista } from '@/types/models';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { Download, Printer } from 'lucide-react';
-import { useReactToPrint } from 'react-to-print';
 import { toast } from 'sonner';
-import { usePrintHandler } from '@/utils/printUtils';
 
 const RelatorioInvestimentos = () => {
   const [investimentos, setInvestimentos] = useState<Investimento[]>([]);
   const [investimentosFiltrados, setInvestimentosFiltrados] = useState<Investimento[]>([]);
   const [setoristas, setSetoristas] = useState<Setorista[]>([]);
   const printRef = useRef<HTMLDivElement>(null);
-  const { printHandler } = usePrintHandler(printRef, 'Relatório de Investimentos');
+
+  const handlePrint = () => {
+    window.print();
+  };
   
   // Filtros
   const [dataInicial, setDataInicial] = useState('');
@@ -116,13 +117,9 @@ const RelatorioInvestimentos = () => {
             </p>
           </div>
           <div className="flex gap-2 mt-4 sm:mt-0">
-            <Button variant="outline" onClick={printHandler}>
+            <Button variant="default" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
-            </Button>
-            <Button variant="default" onClick={printHandler}>
-              <Download className="mr-2 h-4 w-4" />
-              Gerar PDF
             </Button>
           </div>
         </div>

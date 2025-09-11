@@ -25,7 +25,6 @@ import { Link } from 'react-router-dom';
 import { Edit, Plus, Trash2, Printer, Download } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
-import { usePrintHandler } from '@/utils/printUtils';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const InvestimentosList = () => {
@@ -33,7 +32,10 @@ const InvestimentosList = () => {
   const [investimentosFiltrados, setInvestimentosFiltrados] = useState<Investimento[]>([]);
   const [setoristas, setSetoristas] = useState<Setorista[]>([]);
   const printRef = useRef<HTMLDivElement>(null);
-  const { printHandler } = usePrintHandler(printRef, 'Lista de Investimentos');
+
+  const handlePrint = () => {
+    window.print();
+  };
   
   // Filtros
   const [dataInicial, setDataInicial] = useState('');
@@ -129,13 +131,9 @@ const InvestimentosList = () => {
             </p>
           </div>
           <div className="flex gap-2 mt-4 sm:mt-0">
-            <Button variant="outline" onClick={printHandler}>
+            <Button variant="outline" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
-            </Button>
-            <Button variant="default" onClick={printHandler}>
-              <Download className="mr-2 h-4 w-4" />
-              Gerar PDF
             </Button>
             <Link to="/investimentos/novo">
               <Button>

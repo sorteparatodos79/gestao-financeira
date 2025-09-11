@@ -25,7 +25,6 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useNavigate } from 'react-router-dom';
 import { Download, Edit, Plus, Printer, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { usePrintHandler } from '@/utils/printUtils';
 
 const DespesasList = () => {
   const [despesas, setDespesas] = useState<Despesa[]>([]);
@@ -33,7 +32,10 @@ const DespesasList = () => {
   const [setoristas, setSetoristas] = useState<Setorista[]>([]);
   const navigate = useNavigate();
   const printRef = useRef<HTMLDivElement>(null);
-  const { printHandler } = usePrintHandler(printRef, 'Lista de Despesas');
+
+  const handlePrint = () => {
+    window.print();
+  };
   
   // Filtros
   const [dataInicial, setDataInicial] = useState('');
@@ -134,13 +136,9 @@ const DespesasList = () => {
             </p>
           </div>
           <div className="flex gap-2 mt-4 sm:mt-0">
-            <Button variant="outline" onClick={printHandler}>
+            <Button variant="outline" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
-            </Button>
-            <Button variant="default" onClick={printHandler}>
-              <Download className="mr-2 h-4 w-4" />
-              Gerar PDF
             </Button>
             <Button onClick={() => navigate('/despesas/novo')}>
               <Plus className="mr-2 h-4 w-4" />
