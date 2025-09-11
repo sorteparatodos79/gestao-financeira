@@ -24,6 +24,7 @@ import RelatoriosPage from "./pages/relatorios/RelatoriosPage";
 import RelatorioDespesas from "./pages/relatorios/RelatorioDespesas";
 import RelatorioMovimentos from "./pages/relatorios/RelatorioMovimentos";
 import RelatorioInvestimentos from "./pages/relatorios/RelatorioInvestimentos";
+import ProjecaoPage from "./pages/projecao/ProjecaoPage";
 
 const queryClient = new QueryClient();
 
@@ -216,6 +217,15 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <Layout>
             <RelatorioInvestimentos />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      {/* Rota de Projeção */}
+      <Route path="/projecao" element={
+        <ProtectedRoute>
+          <Layout>
+            <ProjecaoPage />
           </Layout>
         </ProtectedRoute>
       } />

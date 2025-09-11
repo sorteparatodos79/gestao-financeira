@@ -13,7 +13,8 @@ import {
   FileText, 
   MenuIcon,
   UserPlus,
-  LogOut
+  LogOut,
+  Calculator
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,7 @@ const SidebarContent = ({ pathname }: SidebarContentProps) => {
     { to: "/movimentos", label: "Movimentos", icon: <ShoppingBag size={20} /> },
     { to: "/investimentos", label: "Investimentos", icon: <PiggyBank size={20} /> },
     { to: "/relatorios", label: "Relatórios", icon: <FileText size={20} /> },
+    { to: "/projecao", label: "Projeção", icon: <Calculator size={20} /> },
     { to: "/usuarios", label: "Usuários", icon: <UserPlus size={20} /> },
   ];
 
