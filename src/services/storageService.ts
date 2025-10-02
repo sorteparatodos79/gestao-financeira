@@ -1,12 +1,13 @@
 // Serviço de armazenamento usando Supabase
-import { Despesa, Investimento, MovimentoFinanceiro, Setorista, Usuario } from "@/types/models";
+import { Despesa, Investimento, MovimentoFinanceiro, Setorista, Usuario, ExtraDiscount } from "@/types/models";
 import { parseDatabaseDate } from "@/utils/formatters";
 import { 
   setoristasService, 
   despesasService, 
   movimentosService, 
   investimentosService,
-  usuariosService 
+  usuariosService,
+  descontosExtrasService 
 } from './supabaseService';
 
 // Funções para Setoristas
@@ -574,5 +575,112 @@ export const getInvestimentoById = async (id: string): Promise<Investimento | nu
   } catch (error) {
     console.error('Erro ao buscar investimento por ID:', error);
     return null;
+  }
+};
+
+// Funções para Descontos Extras
+export const getDescontosExtras = async (): Promise<ExtraDiscount[]> => {
+  try {
+    const { data, error } = await descontosExtrasService.getAll();
+    if (error) throw error;
+    
+    return data?.map(desconto => ({
+      id: desconto.id,
+      mesAno: desconto.mes_ano,
+      value: desconto.valor,
+      description: desconto.descricao,
+      createdAt: desconto.created_at ? new Date(desconto.created_at) : undefined,
+      updatedAt: desconto.updated_at ? new Date(desconto.updated_at) : undefined
+    })) || [];
+  } catch (error) {
+    console.error('Erro ao buscar descontos extras:', error);
+    return [];
+  }
+};
+
+export const getDescontosExtrasByMesAno = async (mesAno: string): Promise<ExtraDiscount[]> => {
+  try {
+    const { data, error } = await descontosExtrasService.getByMesAno(mesAno);
+    if (error) throw error;
+    
+    return data?.map(desconto => ({
+      id: desconto.id,
+      mesAno: desconto.mes_ano,
+      value: desconto.valor,
+      description: desconto.descricao,
+      createdAt: desconto.created_at ? new Date(desconto.created_at) : undefined,
+      updatedAt: desconto.updated_at ? new Date(desconto.updated_at) : undefined
+    })) || [];
+  } catch (error) {
+    console.error('Erro ao buscar descontos extras por mês/ano:', error);
+    return [];
+  }
+};
+
+export const addDescontoExtra = async (desconto: Omit<ExtraDiscount, 'id' | 'createdAt' | 'updatedAt'>): Promise<ExtraDiscount> => {
+  try {
+    const { data, error } = await descontosExtrasService.create({
+      mes_ano: desconto.mesAno,
+      descricao: desconto.description,
+      valor: desconto.value
+    });
+    
+    if (error) throw error;
+    
+    return {
+      id: data.id,
+      mesAno: data.mes_ano,
+      value: data.valor,
+      description: data.descricao,
+      createdAt: data.created_at ? new Date(data.created_at) : undefined,
+      updatedAt: data.updated_at ? new Date(data.updated_at) : undefined
+    };
+  } catch (error) {
+    console.error('Erro ao criar desconto extra:', error);
+    throw error;
+  }
+};
+
+export const updateDescontoExtra = async (desconto: ExtraDiscount): Promise<ExtraDiscount> => {
+  try {
+    const { data, error } = await descontosExtrasService.update(desconto.id, {
+      mes_ano: desconto.mesAno,
+      descricao: desconto.description,
+      valor: desconto.value
+    });
+    
+    if (error) throw error;
+    
+    return {
+      id: data.id,
+      mesAno: data.mes_ano,
+      value: data.valor,
+      description: data.descricao,
+      createdAt: data.created_at ? new Date(data.created_at) : undefined,
+      updatedAt: data.updated_at ? new Date(data.updated_at) : undefined
+    };
+  } catch (error) {
+    console.error('Erro ao atualizar desconto extra:', error);
+    throw error;
+  }
+};
+
+export const deleteDescontoExtra = async (id: string): Promise<void> => {
+  try {
+    const { error } = await descontosExtrasService.delete(id);
+    if (error) throw error;
+  } catch (error) {
+    console.error('Erro ao deletar desconto extra:', error);
+    throw error;
+  }
+};
+
+export const deleteDescontosExtrasByMesAno = async (mesAno: string): Promise<void> => {
+  try {
+    const { error } = await descontosExtrasService.deleteByMesAno(mesAno);
+    if (error) throw error;
+  } catch (error) {
+    console.error('Erro ao deletar descontos extras por mês/ano:', error);
+    throw error;
   }
 };

@@ -17,7 +17,11 @@ import {
   getSetoristas, 
   getMovimentos, 
   getDespesas,
-  getInvestimentos
+  getInvestimentos,
+  getDescontosExtrasByMesAno,
+  addDescontoExtra,
+  updateDescontoExtra,
+  deleteDescontoExtra
 } from "@/services/storageService";
 import { 
   MovimentoFinanceiro, 
@@ -422,7 +426,7 @@ const Index = () => {
             <div class="summary-row">
               <span class="summary-label">Valor Líquido:</span>
               <span class="summary-value ${totaisAtivos.valorLiquido >= 0 ? 'positive' : 'negative'}">${formatCurrency(totaisAtivos.valorLiquido)}</span>
-            </div>${mostrarInvestimentos ? `<div class="summary-row"><span class="summary-label">(-) Investimentos:</span><span class="summary-value negative">-${formatCurrency(totalInvestimentos)}</span></div>` : ''}${totalDescontos > 0 ? `<div class="summary-row"><span class="summary-label">(-) Descontos:</span><span class="summary-value negative">-${formatCurrency(totalDescontos)}</span></div>` : ''}<div class="summary-row">
+            </div>${mostrarInvestimentos ? `<div class="summary-row"><span class="summary-label">(-) Investimentos:</span><span class="summary-value negative">-${formatCurrency(totalInvestimentos)}</span></div>` : ''}${extraDiscounts.map(discount => `<div class="summary-row"><span class="summary-label">(-) ${discount.description || 'Desconto Extra'}:</span><span class="summary-value negative">-${formatCurrency(discount.value)}</span></div>`).join('')}<div class="summary-row">
               <span class="summary-label">RESULTADO FINAL:</span>
               <span class="summary-value ${resultadoFinal >= 0 ? 'positive' : 'negative'}">${formatCurrency(resultadoFinal)}</span>
             </div>
@@ -451,27 +455,42 @@ const Index = () => {
     setTempDiscountDescription("");
   };
 
-  const handleSaveDiscount = () => {
+  const handleSaveDiscount = async () => {
     const value = Number(tempDiscountValue) || 0;
     
-    if (editingDiscountId === 'new') {
-      setExtraDiscounts([
-        ...extraDiscounts,
-        {
-          id: crypto.randomUUID(),
+    try {
+      if (editingDiscountId === 'new') {
+        // Criar novo desconto no banco
+        const novoDesconto = await addDescontoExtra({
+          mesAno: filtroMes,
           value,
           description: tempDiscountDescription
+        });
+        
+        setExtraDiscounts([...extraDiscounts, novoDesconto]);
+        toast.success('Desconto extra adicionado com sucesso!');
+      } else if (editingDiscountId) {
+        // Atualizar desconto existente no banco
+        const descontoExistente = extraDiscounts.find(d => d.id === editingDiscountId);
+        if (descontoExistente) {
+          const descontoAtualizado = await updateDescontoExtra({
+            ...descontoExistente,
+            value,
+            description: tempDiscountDescription
+          });
+          
+          setExtraDiscounts(extraDiscounts.map(discount => 
+            discount.id === editingDiscountId ? descontoAtualizado : discount
+          ));
+          toast.success('Desconto extra atualizado com sucesso!');
         }
-      ]);
-    } else if (editingDiscountId) {
-      setExtraDiscounts(extraDiscounts.map(discount => 
-        discount.id === editingDiscountId
-          ? { ...discount, value, description: tempDiscountDescription }
-          : discount
-      ));
+      }
+      
+      setEditingDiscountId(null);
+    } catch (error) {
+      console.error('Erro ao salvar desconto:', error);
+      toast.error('Erro ao salvar desconto extra');
     }
-    
-    setEditingDiscountId(null);
   };
 
   const handleEditDiscount = (discount: ExtraDiscount) => {
@@ -480,8 +499,15 @@ const Index = () => {
     setTempDiscountDescription(discount.description);
   };
 
-  const handleDeleteDiscount = (id: string) => {
-    setExtraDiscounts(extraDiscounts.filter(d => d.id !== id));
+  const handleDeleteDiscount = async (id: string) => {
+    try {
+      await deleteDescontoExtra(id);
+      setExtraDiscounts(extraDiscounts.filter(d => d.id !== id));
+      toast.success('Desconto extra removido com sucesso!');
+    } catch (error) {
+      console.error('Erro ao deletar desconto:', error);
+      toast.error('Erro ao remover desconto extra');
+    }
   };
 
   const handleCancelEditing = () => {
@@ -720,6 +746,10 @@ const Index = () => {
       try {
         const listaSetoristas = await getSetoristas();
         setSetoristas(listaSetoristas);
+        
+        // Carregar descontos extras para o mês atual
+        const descontosExtras = await getDescontosExtrasByMesAno(filtroMes);
+        setExtraDiscounts(descontosExtras);
         
         await atualizarDados(filtroMes);
       } catch (error) {

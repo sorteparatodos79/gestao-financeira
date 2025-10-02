@@ -148,6 +148,27 @@ export interface Database {
           descricao?: string;
         };
       };
+      descontos_extras: {
+        Row: {
+          id: string;
+          mes_ano: string;
+          descricao: string;
+          valor: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          mes_ano: string;
+          descricao: string;
+          valor: number;
+        };
+        Update: {
+          mes_ano?: string;
+          descricao?: string;
+          valor?: number;
+        };
+      };
     };
   };
 }
@@ -489,6 +510,71 @@ export const usuariosService = {
       .from('usuarios')
       .update({ ativo: false })
       .eq('id', id);
+    return { error };
+  }
+};
+
+// Funções para descontos extras
+export const descontosExtrasService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('descontos_extras')
+      .select('*')
+      .order('mes_ano', { ascending: false })
+      .order('created_at', { ascending: false });
+    return { data, error };
+  },
+
+  async getByMesAno(mesAno: string) {
+    const { data, error } = await supabase
+      .from('descontos_extras')
+      .select('*')
+      .eq('mes_ano', mesAno)
+      .order('created_at', { ascending: false });
+    return { data, error };
+  },
+
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from('descontos_extras')
+      .select('*')
+      .eq('id', id)
+      .single();
+    return { data, error };
+  },
+
+  async create(desconto: Database['public']['Tables']['descontos_extras']['Insert']) {
+    const { data, error } = await supabase
+      .from('descontos_extras')
+      .insert(desconto)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async update(id: string, desconto: Database['public']['Tables']['descontos_extras']['Update']) {
+    const { data, error } = await supabase
+      .from('descontos_extras')
+      .update(desconto)
+      .eq('id', id)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('descontos_extras')
+      .delete()
+      .eq('id', id);
+    return { error };
+  },
+
+  async deleteByMesAno(mesAno: string) {
+    const { error } = await supabase
+      .from('descontos_extras')
+      .delete()
+      .eq('mes_ano', mesAno);
     return { error };
   }
 };

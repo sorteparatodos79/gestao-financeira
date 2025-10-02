@@ -74,6 +74,9 @@ export type Usuario = {
 
 export interface ExtraDiscount {
   id: string;
+  mesAno: string; // Formato: YYYY-MM (ex: 2025-01)
   value: number;
   description: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

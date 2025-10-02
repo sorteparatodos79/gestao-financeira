@@ -563,71 +563,71 @@ const DespesasList = () => {
           </div>
         </CardContent>
       </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center justify-between">
-            <span>Despesas</span>
-            <span className="text-base font-normal">
-              Total: <strong>{formatCurrency(calcularTotal())}</strong>
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {despesasFiltradas.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Setorista</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead className="text-center">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {despesasFiltradas.map((despesa) => (
-                  <TableRow key={despesa.id}>
-                    <TableCell>{formatDate(despesa.data)}</TableCell>
-                    <TableCell>{despesa.setorista?.nome || 'N/A'}</TableCell>
-                    <TableCell>{despesa.tipoDespesa}</TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrency(despesa.valor)}
-                    </TableCell>
-                    <TableCell className="max-w-[300px] truncate">
-                      {despesa.descricao || '—'}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex justify-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditar(despesa.id)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(despesa.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center justify-between">
+              <span>Despesas</span>
+              <span className="text-base font-normal">
+                Total: <strong>{formatCurrency(calcularTotal())}</strong>
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {despesasFiltradas.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Setorista</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead>Descrição</TableHead>
+                    <TableHead className="text-center">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TableCell colSpan={4} className="font-bold">TOTAL</TableCell>
-                  <TableCell className="text-right font-bold">
-                    {formatCurrency(calcularTotal())}
-                  </TableCell>
-                  <TableCell />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              Nenhuma despesa encontrada com os filtros aplicados.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {despesasFiltradas.map((despesa) => (
+                    <TableRow key={despesa.id}>
+                      <TableCell>{formatDate(despesa.data)}</TableCell>
+                      <TableCell>{despesa.setorista?.nome || 'N/A'}</TableCell>
+                      <TableCell>{despesa.tipoDespesa}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatCurrency(despesa.valor)}
+                      </TableCell>
+                      <TableCell className="max-w-[300px] truncate">
+                        {despesa.descricao || '—'}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => handleEditar(despesa.id)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(despesa.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell colSpan={4} className="font-bold">TOTAL</TableCell>
+                    <TableCell className="text-right font-bold">
+                      {formatCurrency(calcularTotal())}
+                    </TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhuma despesa encontrada com os filtros aplicados.
+              </div>
+            )}
+          </CardContent>
+        </Card>
     </div>
   );
 };
