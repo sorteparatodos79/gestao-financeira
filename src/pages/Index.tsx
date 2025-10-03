@@ -284,6 +284,8 @@ const Index = () => {
         
         .section {
           margin-bottom: 30px;
+          margin-top: 0;
+          padding-top: 0;
           page-break-inside: avoid;
         }
         
@@ -300,6 +302,7 @@ const Index = () => {
           width: 100%;
           border-collapse: collapse;
           margin-bottom: 20px;
+          margin-top: 0;
           font-size: 11px;
         }
         
@@ -311,6 +314,7 @@ const Index = () => {
           text-align: left;
           border: 1px solid #000;
           font-size: 11px;
+          margin-top: 0;
         }
         
         .data-table td {
