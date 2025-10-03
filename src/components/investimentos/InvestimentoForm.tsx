@@ -76,24 +76,32 @@ const InvestimentoForm = ({ investimento, isEdit }: InvestimentoFormProps) => {
     carregarSetoristas();
   }, []);
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    const novoInvestimento = {
-      id: isEdit && investimento ? investimento.id : uuidv4(),
-      data: new Date(data.data),
-      setoristaId: data.setoristaId,
-      tipoInvestimento: data.tipoInvestimento as TipoInvestimento, // Convertemos explicitamente para TipoInvestimento
-      valor: Number(data.valor),
-      descricao: data.descricao || '',
-    };
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    try {
+      const novoInvestimento = {
+        id: isEdit && investimento ? investimento.id : uuidv4(),
+        data: new Date(data.data),
+        setoristaId: data.setoristaId,
+        tipoInvestimento: data.tipoInvestimento as TipoInvestimento, // Convertemos explicitamente para TipoInvestimento
+        valor: Number(data.valor),
+        descricao: data.descricao || '',
+      };
 
-    if (isEdit && investimento) {
-      updateInvestimento(novoInvestimento);
-      toast.success('Investimento atualizado com sucesso!');
-    } else {
-      addInvestimento(novoInvestimento);
-      toast.success('Investimento cadastrado com sucesso!');
+      console.log('Enviando investimento:', novoInvestimento);
+
+      if (isEdit && investimento) {
+        await updateInvestimento(novoInvestimento);
+        toast.success('Investimento atualizado com sucesso!');
+      } else {
+        const resultado = await addInvestimento(novoInvestimento);
+        console.log('Investimento criado:', resultado);
+        toast.success('Investimento cadastrado com sucesso!');
+      }
+      navigate('/investimentos');
+    } catch (error) {
+      console.error('Erro ao salvar investimento:', error);
+      toast.error(`Erro ao salvar investimento: ${error.message || 'Erro desconhecido'}`);
     }
-    navigate('/investimentos');
   };
 
   return (

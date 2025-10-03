@@ -325,15 +325,30 @@ export const getInvestimentos = async (): Promise<Investimento[]> => {
 
 export const addInvestimento = async (investimento: Omit<Investimento, 'id'>): Promise<Investimento> => {
   try {
-    const { data, error } = await investimentosService.create({
+    console.log('Preparando dados para criação de investimento:', {
       data: investimento.data.toISOString().split('T')[0],
       setorista_id: investimento.setoristaId,
       tipo_investimento: investimento.tipoInvestimento,
       valor: investimento.valor,
       descricao: investimento.descricao
     });
+
+    const dadosParaInsercao = {
+      data: investimento.data.toISOString().split('T')[0],
+      setorista_id: investimento.setoristaId,
+      tipo_investimento: investimento.tipoInvestimento,
+      valor: investimento.valor,
+      descricao: investimento.descricao
+    };
+
+    const { data, error } = await investimentosService.create(dadosParaInsercao);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Erro específico do Supabase:', error);
+      throw new Error(`Erro do Supabase: ${error.message || JSON.stringify(error)}`);
+    }
+    
+    console.log('Investimento criado com sucesso:', data);
     
     return {
       id: data.id,
@@ -349,7 +364,7 @@ export const addInvestimento = async (investimento: Omit<Investimento, 'id'>): P
       descricao: data.descricao
     };
   } catch (error) {
-    console.error('Erro ao criar investimento:', error);
+    console.error('Erro detalhado ao criar investimento:', error);
     throw error;
   }
 };

@@ -128,21 +128,23 @@ const Index = () => {
             <tr>
               <th>Setorista</th>
               <th class="text-right">Vendas</th>
-              <th class="text-right">Comissão</th>
-              <th class="text-right">Prêmios</th>
-              <th class="text-right">Despesas</th>
-              <th class="text-right">Valor Líquido</th>
+              <th class="text-right">(-) Comissão</th>
+              <th class="text-right">(-) Prêmios</th>
+              <th class="text-right" style="background: #dcfce7;">(=) Líquido</th>
+              <th class="text-right">(-) Despesas</th>
+              <th class="text-right" style="background: #dbeafe;">TOTAL</th>
             </tr>
           </thead>
           <tbody>
             ${resumoSetoristas.map(setorista => `
               <tr>
                 <td>${setorista.nome}</td>
-                <td class="text-right">${formatCurrency(setorista.vendas)}</td>
-                <td class="text-right">${formatCurrency(setorista.comissao + setorista.comissaoRetida)}</td>
-                <td class="text-right">${formatCurrency(setorista.premios)}</td>
-                <td class="text-right">${formatCurrency(setorista.despesas)}</td>
-                <td class="text-right ${setorista.valorLiquido >= 0 ? 'positive' : 'negative'}">${formatCurrency(setorista.valorLiquido)}</td>
+                <td class="text-right font-bold">${formatCurrency(setorista.vendas)}</td>
+                <td class="text-right negative">${formatCurrency(-setorista.comissao)}</td>
+                <td class="text-right negative">${formatCurrency(-setorista.premios)}</td>
+                <td class="text-right font-bold ${(setorista.vendas - setorista.comissao - setorista.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">${formatCurrency(setorista.vendas - setorista.comissao - setorista.premios)}</td>
+                <td class="text-right negative">${formatCurrency(-setorista.despesas)}</td>
+                <td class="text-right font-bold ${setorista.valorLiquido >= 0 ? 'positive' : 'negative'}" style="background: #dbeafe;">${formatCurrency(setorista.valorLiquido)}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -154,18 +156,22 @@ const Index = () => {
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.vendas}</div>
               </td>
               <td class="text-right">
-                <strong>${formatCurrency(totaisSetoristas.comissao + totaisSetoristas.comissaoRetida)}</strong>
-                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${((totaisSetoristas.comissao + totaisSetoristas.comissaoRetida) / totaisSetoristas.vendas * 100).toFixed(1)}%</div>
+                <strong class="negative">${formatCurrency(-totaisSetoristas.comissao)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(totaisSetoristas.comissao / totaisSetoristas.vendas * 100).toFixed(1)}%</div>
               </td>
               <td class="text-right">
-                <strong>${formatCurrency(totaisSetoristas.premios)}</strong>
+                <strong class="negative">${formatCurrency(-totaisSetoristas.premios)}</strong>
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.premios}</div>
               </td>
+              <td class="text-right font-bold ${(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">
+                <strong>${formatCurrency(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(((totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios) / totaisSetoristas.vendas) * 100).toFixed(1)}%</div>
+              </td>
               <td class="text-right">
-                <strong>${formatCurrency(totaisSetoristas.despesas)}</strong>
+                <strong class="negative">${formatCurrency(-totaisSetoristas.despesas)}</strong>
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.despesas}</div>
               </td>
-              <td class="text-right ${totaisSetoristas.valorLiquido >= 0 ? 'positive' : 'negative'}">
+              <td class="text-right font-bold ${totaisSetoristas.valorLiquido >= 0 ? 'positive' : 'negative'}" style="background: #dbeafe;">
                 <strong>${formatCurrency(totaisSetoristas.valorLiquido)}</strong>
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.valorLiquido}</div>
               </td>
@@ -183,21 +189,23 @@ const Index = () => {
             <tr>
               <th>Data</th>
               <th class="text-right">Vendas</th>
-              <th class="text-right">Comissão</th>
-              <th class="text-right">Prêmios</th>
-              <th class="text-right">Despesas</th>
-              <th class="text-right">Valor Líquido</th>
+              <th class="text-right">(-) Comissão</th>
+              <th class="text-right">(-) Prêmios</th>
+              <th class="text-right" style="background: #dcfce7;">(=) Líquido</th>
+              <th class="text-right">(-) Despesas</th>
+              <th class="text-right" style="background: #dbeafe;">TOTAL</th>
             </tr>
           </thead>
           <tbody>
             ${resumoDiario.map(dia => `
               <tr>
                 <td>${dia.data}</td>
-                <td class="text-right">${formatCurrency(dia.vendas)}</td>
-                <td class="text-right">${formatCurrency(dia.comissao + dia.comissaoRetida)}</td>
-                <td class="text-right">${formatCurrency(dia.premios)}</td>
-                <td class="text-right">${formatCurrency(dia.despesas)}</td>
-                <td class="text-right ${dia.valorLiquido >= 0 ? 'positive' : 'negative'}">${formatCurrency(dia.valorLiquido)}</td>
+                <td class="text-right font-bold">${formatCurrency(dia.vendas)}</td>
+                <td class="text-right negative">${formatCurrency(-dia.comissao)}</td>
+                <td class="text-right negative">${formatCurrency(-dia.premios)}</td>
+                <td class="text-right font-bold ${(dia.vendas - dia.comissao - dia.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">${formatCurrency(dia.vendas - dia.comissao - dia.premios)}</td>
+                <td class="text-right negative">${formatCurrency(-dia.despesas)}</td>
+                <td class="text-right font-bold ${dia.valorLiquido >= 0 ? 'positive' : 'negative'}" style="background: #dbeafe;">${formatCurrency(dia.valorLiquido)}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -209,18 +217,22 @@ const Index = () => {
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.vendas}</div>
               </td>
               <td class="text-right">
-                <strong>${formatCurrency(totaisDiarios.comissao + totaisDiarios.comissaoRetida)}</strong>
-                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${((totaisDiarios.comissao + totaisDiarios.comissaoRetida) / totaisDiarios.vendas * 100).toFixed(1)}%</div>
+                <strong class="negative">${formatCurrency(-totaisDiarios.comissao)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(totaisDiarios.comissao / totaisDiarios.vendas * 100).toFixed(1)}%</div>
               </td>
               <td class="text-right">
-                <strong>${formatCurrency(totaisDiarios.premios)}</strong>
+                <strong class="negative">${formatCurrency(-totaisDiarios.premios)}</strong>
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.premios}</div>
               </td>
+              <td class="text-right font-bold ${(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">
+                <strong>${formatCurrency(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(((totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios) / totaisDiarios.vendas) * 100).toFixed(1)}%</div>
+              </td>
               <td class="text-right">
-                <strong>${formatCurrency(totaisDiarios.despesas)}</strong>
+                <strong class="negative">${formatCurrency(-totaisDiarios.despesas)}</strong>
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.despesas}</div>
               </td>
-              <td class="text-right ${totaisDiarios.valorLiquido >= 0 ? 'positive' : 'negative'}">
+              <td class="text-right font-bold ${totaisDiarios.valorLiquido >= 0 ? 'positive' : 'negative'}" style="background: #dbeafe;">
                 <strong>${formatCurrency(totaisDiarios.valorLiquido)}</strong>
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.valorLiquido}</div>
               </td>
@@ -610,7 +622,7 @@ const Index = () => {
     return {
       vendas: "100%", // Total de vendas é sempre 100%
       comissao: `${((totais.comissao / totalVendas) * 100).toFixed(1)}%`,
-      comissaoRetida: `${((totais.comissaoRetida / totalVendas) * 100).toFixed(1)}%`,
+      comissaoRetida: `${(0).toFixed(1)}%`, // Não mais usado
       premios: `${((totais.premios / totalVendas) * 100).toFixed(1)}%`,
       despesas: `${((totais.despesas / totalVendas) * 100).toFixed(1)}%`,
       valorLiquido: `${((totais.valorLiquido / totalVendas) * 100).toFixed(1)}%`
@@ -954,10 +966,11 @@ const Index = () => {
                   <TableRow>
                     <TableHead className="w-[180px]">Setorista</TableHead>
                     <TableHead className="text-right">Vendas</TableHead>
-                    <TableHead className="text-right">Comissão</TableHead>
-                    <TableHead className="text-right">Prêmios</TableHead>
-                    <TableHead className="text-right">Despesas</TableHead>
-                    <TableHead className="text-right">Valor Líquido</TableHead>
+                    <TableHead className="text-right">(-) Comissão</TableHead>
+                    <TableHead className="text-right">(-) Prêmios</TableHead>
+                    <TableHead className="text-right bg-green-50">(=) Líquido</TableHead>
+                    <TableHead className="text-right">(-) Despesas</TableHead>
+                    <TableHead className="text-right bg-blue-50">TOTAL</TableHead>
                   </TableRow>
                 </TableHeader>
                 
@@ -966,12 +979,17 @@ const Index = () => {
                     resumoSetoristas.map(setorista => (
                       <TableRow key={setorista.id}>
                         <TableCell className="font-medium">{setorista.nome}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(setorista.vendas)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(setorista.comissao + setorista.comissaoRetida)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(setorista.premios)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(setorista.despesas)}</TableCell>
-                        <TableCell className="text-right font-semibold" style={{ 
-                          color: setorista.valorLiquido >= 0 ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' 
+                        <TableCell className="text-right font-medium">{formatCurrency(setorista.vendas)}</TableCell>
+                        <TableCell className="text-right text-red-600">{formatCurrency(-setorista.comissao)}</TableCell>
+                        <TableCell className="text-right text-red-600">{formatCurrency(-setorista.premios)}</TableCell>
+                        <TableCell className="text-right bg-green-50 font-semibold" style={{ 
+                          color: (setorista.vendas - setorista.comissao - setorista.premios) >= 0 ? 'green' : 'red' 
+                        }}>
+                          {formatCurrency(setorista.vendas - setorista.comissao - setorista.premios)}
+                        </TableCell>
+                        <TableCell className="text-right text-red-600">{formatCurrency(-setorista.despesas)}</TableCell>
+                        <TableCell className="text-right bg-blue-50 font-bold text-lg" style={{ 
+                          color: setorista.valorLiquido >= 0 ? 'blue' : 'red' 
                         }}>
                           {formatCurrency(setorista.valorLiquido)}
                         </TableCell>
@@ -979,7 +997,7 @@ const Index = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6">
+                      <TableCell colSpan={7} className="text-center py-6">
                         Nenhum movimento encontrado para o período selecionado.
                       </TableCell>
                     </TableRow>
@@ -991,30 +1009,38 @@ const Index = () => {
                     <TableCell className="font-bold">TOTAIS</TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisSetoristas.vendas)}</span>
+                        <span className="font-bold">{formatCurrency(totaisSetoristas.vendas)}</span>
                         <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).vendas}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisSetoristas.comissao + totaisSetoristas.comissaoRetida)}</span>
-                        <span className="text-xs text-muted-foreground">{((totaisSetoristas.comissao + totaisSetoristas.comissaoRetida) / totaisSetoristas.vendas * 100).toFixed(1)}%</span>
+                        <span className="text-red-600">{formatCurrency(-totaisSetoristas.comissao)}</span>
+                        <span className="text-xs text-muted-foreground">{(totaisSetoristas.comissao / totaisSetoristas.vendas * 100).toFixed(1)}%</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisSetoristas.premios)}</span>
+                        <span className="text-red-600">{formatCurrency(-totaisSetoristas.premios)}</span>
                         <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).premios}</span>
                       </div>
                     </TableCell>
+                    <TableCell className="text-right bg-green-50 font-bold">
+                      <div className="flex flex-col">
+                        <span style={{ color: (totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios) >= 0 ? 'green' : 'red' }}>
+                          {formatCurrency(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{(((totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios) / totaisSetoristas.vendas) * 100).toFixed(1)}%</span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisSetoristas.despesas)}</span>
+                        <span className="text-red-600">{formatCurrency(-totaisSetoristas.despesas)}</span>
                         <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).despesas}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right font-bold" style={{ 
-                      color: totaisSetoristas.valorLiquido >= 0 ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' 
+                    <TableCell className="text-right bg-blue-50 font-bold text-lg" style={{ 
+                      color: totaisSetoristas.valorLiquido >= 0 ? 'blue' : 'red' 
                     }}>
                       <div className="flex flex-col">
                         <span>{formatCurrency(totaisSetoristas.valorLiquido)}</span>
@@ -1079,10 +1105,11 @@ const Index = () => {
                   <TableRow>
                     <TableHead className="w-[80px]">Data</TableHead>
                     <TableHead className="text-right">Vendas</TableHead>
-                    <TableHead className="text-right">Comissão</TableHead>
-                    <TableHead className="text-right">Prêmios</TableHead>
-                    <TableHead className="text-right">Despesas</TableHead>
-                    <TableHead className="text-right">Valor Líquido</TableHead>
+                    <TableHead className="text-right">(-) Comissão</TableHead>
+                    <TableHead className="text-right">(-) Prêmios</TableHead>
+                    <TableHead className="text-right bg-green-50">(=) Líquido</TableHead>
+                    <TableHead className="text-right">(-) Despesas</TableHead>
+                    <TableHead className="text-right bg-blue-50">TOTAL</TableHead>
                   </TableRow>
                 </TableHeader>
                 
@@ -1091,12 +1118,17 @@ const Index = () => {
                     resumoDiario.map((dia, index) => (
                       <TableRow key={index}>
                         <TableCell className="font-medium">{dia.data}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(dia.vendas)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(dia.comissao + dia.comissaoRetida)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(dia.premios)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(dia.despesas)}</TableCell>
-                        <TableCell className="text-right font-semibold" style={{ 
-                          color: dia.valorLiquido >= 0 ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' 
+                        <TableCell className="text-right font-medium">{formatCurrency(dia.vendas)}</TableCell>
+                        <TableCell className="text-right text-red-600">{formatCurrency(-dia.comissao)}</TableCell>
+                        <TableCell className="text-right text-red-600">{formatCurrency(-dia.premios)}</TableCell>
+                        <TableCell className="text-right bg-green-50 font-semibold" style={{ 
+                          color: (dia.vendas - dia.comissao - dia.premios) >= 0 ? 'green' : 'red' 
+                        }}>
+                          {formatCurrency(dia.vendas - dia.comissao - dia.premios)}
+                        </TableCell>
+                        <TableCell className="text-right text-red-600">{formatCurrency(-dia.despesas)}</TableCell>
+                        <TableCell className="text-right bg-blue-50 font-bold text-lg" style={{ 
+                          color: dia.valorLiquido >= 0 ? 'blue' : 'red' 
                         }}>
                           {formatCurrency(dia.valorLiquido)}
                         </TableCell>
@@ -1104,7 +1136,7 @@ const Index = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6">
+                      <TableCell colSpan={7} className="text-center py-6">
                         Nenhum movimento encontrado para o período selecionado.
                       </TableCell>
                     </TableRow>
@@ -1116,30 +1148,38 @@ const Index = () => {
                     <TableCell className="font-bold">TOTAIS</TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisDiarios.vendas)}</span>
+                        <span className="font-bold">{formatCurrency(totaisDiarios.vendas)}</span>
                         <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).vendas}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisDiarios.comissao + totaisDiarios.comissaoRetida)}</span>
-                        <span className="text-xs text-muted-foreground">{((totaisDiarios.comissao + totaisDiarios.comissaoRetida) / totaisDiarios.vendas * 100).toFixed(1)}%</span>
+                        <span className="text-red-600">{formatCurrency(-totaisDiarios.comissao)}</span>
+                        <span className="text-xs text-muted-foreground">{(totaisDiarios.comissao / totaisDiarios.vendas * 100).toFixed(1)}%</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisDiarios.premios)}</span>
+                        <span className="text-red-600">{formatCurrency(-totaisDiarios.premios)}</span>
                         <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).premios}</span>
                       </div>
                     </TableCell>
+                    <TableCell className="text-right bg-green-50 font-bold">
+                      <div className="flex flex-col">
+                        <span style={{ color: (totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios) >= 0 ? 'green' : 'red' }}>
+                          {formatCurrency(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{(((totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios) / totaisDiarios.vendas) * 100).toFixed(1)}%</span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisDiarios.despesas)}</span>
+                        <span className="text-red-600">{formatCurrency(-totaisDiarios.despesas)}</span>
                         <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).despesas}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right font-bold" style={{ 
-                      color: totaisDiarios.valorLiquido >= 0 ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' 
+                    <TableCell className="text-right bg-blue-50 font-bold text-lg" style={{ 
+                      color: totaisDiarios.valorLiquido >= 0 ? 'blue' : 'red' 
                     }}>
                       <div className="flex flex-col">
                         <span>{formatCurrency(totaisDiarios.valorLiquido)}</span>

@@ -426,6 +426,8 @@ export const investimentosService = {
   },
 
   async create(investimento: Database['public']['Tables']['investimentos']['Insert']) {
+    console.log('Supabase: Tentando criar investimento com dados:', investimento);
+    
     const { data, error } = await supabase
       .from('investimentos')
       .insert(investimento)
@@ -438,6 +440,13 @@ export const investimentosService = {
         )
       `)
       .single();
+    
+    if (error) {
+      console.error('Supabase: Erro ao criar investimento:', error);
+    } else {
+      console.log('Supabase: Investimento criado com sucesso:', data);
+    }
+    
     return { data, error };
   },
 
