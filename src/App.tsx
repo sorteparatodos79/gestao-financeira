@@ -25,6 +25,8 @@ import RelatorioDespesas from "./pages/relatorios/RelatorioDespesas";
 import RelatorioMovimentos from "./pages/relatorios/RelatorioMovimentos";
 import RelatorioInvestimentos from "./pages/relatorios/RelatorioInvestimentos";
 import ProjecaoPage from "./pages/projecao/ProjecaoPage";
+import ComissoesRetidasList from "./pages/comissoes-retidas/ComissoesRetidasList";
+import ComissaoRetidaPage from "./pages/comissoes-retidas/ComissaoRetidaPage";
 
 const queryClient = new QueryClient();
 
@@ -217,6 +219,29 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <Layout>
             <RelatorioInvestimentos />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      {/* Rotas de Comissões Retidas */}
+      <Route path="/comissoes-retidas" element={
+        <ProtectedRoute>
+          <Layout>
+            <ComissoesRetidasList />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/comissoes-retidas/novo" element={
+        <ProtectedRoute>
+          <Layout>
+            <ComissaoRetidaPage />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/comissoes-retidas/editar/:id" element={
+        <ProtectedRoute>
+          <Layout>
+            <ComissaoRetidaPage />
           </Layout>
         </ProtectedRoute>
       } />

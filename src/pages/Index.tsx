@@ -21,14 +21,16 @@ import {
   getDescontosExtrasByMesAno,
   addDescontoExtra,
   updateDescontoExtra,
-  deleteDescontoExtra
+  deleteDescontoExtra,
+  getComissoesRetidas
 } from "@/services/storageService";
 import { 
   MovimentoFinanceiro, 
   Setorista,
   Despesa,
   Investimento,
-  ExtraDiscount
+  ExtraDiscount,
+  ComissaoRetida
 } from "@/types/models";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,6 +57,7 @@ const Index = () => {
   const [despesas, setDespesas] = useState<Despesa[]>([]);
   const [investimentos, setInvestimentos] = useState<Investimento[]>([]);
   const [setoristas, setSetoristas] = useState<Setorista[]>([]);
+  const [comissoesRetidas, setComissoesRetidas] = useState<ComissaoRetida[]>([]);
   const [mostrarInvestimentos, setMostrarInvestimentos] = useState<boolean>(true);
   const [resumoSetoristas, setResumoSetoristas] = useState<{
     id: string;
@@ -566,7 +569,7 @@ const Index = () => {
     let totais = {
       vendas: 0,
       comissao: 0,
-      comissaoRetida: 0, // Manter para compatibilidade, mas não soma
+      comissaoRetida: 0,
       premios: 0,
       despesas: 0,
       valorLiquido: 0
@@ -575,14 +578,13 @@ const Index = () => {
     resumoSetoristas.forEach(setorista => {
       totais.vendas += setorista.vendas;
       totais.comissao += setorista.comissao;
-      // comissaoRetida removida da soma explícita
+      totais.comissaoRetida += setorista.comissaoRetida;
       totais.premios += setorista.premios;
       totais.despesas += setorista.despesas;
-      // valorLiquido não é mais usado - será calculado nas telas
     });
     
-    // Calcular valorLiquido dinamicamente
-    totais.valorLiquido = totais.vendas - totais.comissao - totais.premios - totais.despesas;
+    // Calcular valorLiquido dinamicamente incluindo comissão retida
+    totais.valorLiquido = totais.vendas - totais.comissao - totais.comissaoRetida - totais.premios - totais.despesas;
     
     return totais;
   };
@@ -591,7 +593,7 @@ const Index = () => {
     let totais = {
       vendas: 0,
       comissao: 0,
-      comissaoRetida: 0, // Manter para compatibilidade, mas não soma
+      comissaoRetida: 0,
       premios: 0,
       despesas: 0,
       valorLiquido: 0
@@ -600,14 +602,13 @@ const Index = () => {
     resumoDiario.forEach(dia => {
       totais.vendas += dia.vendas;
       totais.comissao += dia.comissao;
-      // comissaoRetida removida da soma explícita
+      totais.comissaoRetida += dia.comissaoRetida;
       totais.premios += dia.premios;
       totais.despesas += dia.despesas;
-      // valorLiquido não é mais usado - será calculado nas telas
     });
     
-    // Calcular valorLiquido dinamicamente
-    totais.valorLiquido = totais.vendas - totais.comissao - totais.premios - totais.despesas;
+    // Calcular valorLiquido dinamicamente incluindo comissão retida
+    totais.valorLiquido = totais.vendas - totais.comissao - totais.comissaoRetida - totais.premios - totais.despesas;
     
     return totais;
   };
@@ -769,6 +770,9 @@ const Index = () => {
         const listaSetoristas = await getSetoristas();
         setSetoristas(listaSetoristas);
         
+        const listaComissoesRetidas = await getComissoesRetidas();
+        setComissoesRetidas(listaComissoesRetidas);
+        
         // Carregar descontos extras para o mês atual
         const descontosExtras = await getDescontosExtrasByMesAno(filtroMes);
         setExtraDiscounts(descontosExtras);
@@ -839,7 +843,7 @@ const Index = () => {
       
       resumoSetorista[movimento.setoristaId].vendas += movimento.vendas || 0;
       resumoSetorista[movimento.setoristaId].comissao += movimento.comissao || 0;
-      // comissaoRetida removida da soma explícita
+      resumoSetorista[movimento.setoristaId].comissaoRetida += movimento.comissaoRetida || 0;
       resumoSetorista[movimento.setoristaId].premios += movimento.premios || 0;
       resumoSetorista[movimento.setoristaId].valorLiquido += movimento.valorLiquido || 0;
     });
@@ -848,6 +852,16 @@ const Index = () => {
       if (!resumoSetorista[despesa.setoristaId]) return;
       resumoSetorista[despesa.setoristaId].despesas += despesa.valor || 0;
       resumoSetorista[despesa.setoristaId].valorLiquido -= despesa.valor || 0;
+    });
+    
+    // Adicionar comissões retidas separadas
+    comissoesRetidas.forEach(comissaoRetida => {
+      const dataComissao = new Date(comissaoRetida.data);
+      if (dataComissao.getFullYear() === ano && dataComissao.getMonth() + 1 === mes) {
+        if (!resumoSetorista[comissaoRetida.setoristaId]) return;
+        resumoSetorista[comissaoRetida.setoristaId].comissaoRetida += comissaoRetida.valor || 0;
+        resumoSetorista[comissaoRetida.setoristaId].valorLiquido -= comissaoRetida.valor || 0;
+      }
     });
     
     setResumoSetoristas(Object.values(resumoSetorista));
@@ -879,7 +893,7 @@ const Index = () => {
       
       resumoPorDia[dataKey].vendas += movimento.vendas || 0;
       resumoPorDia[dataKey].comissao += movimento.comissao || 0;
-      // comissaoRetida removida da soma explícita
+      resumoPorDia[dataKey].comissaoRetida += movimento.comissaoRetida || 0;
       resumoPorDia[dataKey].premios += movimento.premios || 0;
       resumoPorDia[dataKey].valorLiquido += movimento.valorLiquido || 0;
     });
@@ -901,6 +915,29 @@ const Index = () => {
       
       resumoPorDia[dataKey].despesas += despesa.valor || 0;
       resumoPorDia[dataKey].valorLiquido -= despesa.valor || 0;
+    });
+    
+    // Adicionar comissões retidas separadas no resumo diário
+    comissoesRetidas.forEach(comissaoRetida => {
+      const dataComissao = new Date(comissaoRetida.data);
+      if (dataComissao.getFullYear() === ano && dataComissao.getMonth() + 1 === mes) {
+        const dataKey = format(dataComissao, 'dd/MM');
+        
+        if (!resumoPorDia[dataKey]) {
+          resumoPorDia[dataKey] = {
+            data: dataKey,
+            vendas: 0,
+            comissao: 0,
+            comissaoRetida: 0,
+            premios: 0,
+            despesas: 0,
+            valorLiquido: 0
+          };
+        }
+        
+        resumoPorDia[dataKey].comissaoRetida += comissaoRetida.valor || 0;
+        resumoPorDia[dataKey].valorLiquido -= comissaoRetida.valor || 0;
+      }
     });
     
     const resumoDiarioArray = Object.values(resumoPorDia);
@@ -977,6 +1014,7 @@ const Index = () => {
                     <TableHead className="w-[180px]">Setorista</TableHead>
                     <TableHead className="text-right">Vendas</TableHead>
                     <TableHead className="text-right">(-) Comissão</TableHead>
+                    <TableHead className="text-right">(-) Comissão Retida</TableHead>
                     <TableHead className="text-right">(-) Prêmios</TableHead>
                     <TableHead className="text-right bg-green-50">(=) Líquido</TableHead>
                     <TableHead className="text-right">(-) Despesas</TableHead>
@@ -991,23 +1029,24 @@ const Index = () => {
                         <TableCell className="font-medium">{setorista.nome}</TableCell>
                         <TableCell className="text-right font-medium">{formatCurrency(setorista.vendas)}</TableCell>
                         <TableCell className="text-right text-red-600">{formatCurrency(-setorista.comissao)}</TableCell>
+                        <TableCell className="text-right text-red-600">{formatCurrency(-setorista.comissaoRetida)}</TableCell>
                         <TableCell className="text-right text-red-600">{formatCurrency(-setorista.premios)}</TableCell>
                         <TableCell className="text-right bg-green-50 font-semibold" style={{ 
-                          color: (setorista.vendas - setorista.comissao - setorista.premios) >= 0 ? 'green' : 'red' 
+                          color: (setorista.vendas - setorista.comissao - setorista.comissaoRetida - setorista.premios) >= 0 ? 'green' : 'red' 
                         }}>
-                          {formatCurrency(setorista.vendas - setorista.comissao - setorista.premios)}
+                          {formatCurrency(setorista.vendas - setorista.comissao - setorista.comissaoRetida - setorista.premios)}
                         </TableCell>
                         <TableCell className="text-right text-red-600">{formatCurrency(-setorista.despesas)}</TableCell>
                         <TableCell className="text-right bg-blue-50 font-bold text-lg" style={{ 
-                          color: (setorista.vendas - setorista.comissao - setorista.premios - setorista.despesas) >= 0 ? 'blue' : 'red' 
+                          color: (setorista.vendas - setorista.comissao - setorista.comissaoRetida - setorista.premios - setorista.despesas) >= 0 ? 'blue' : 'red' 
                         }}>
-                          {formatCurrency(setorista.vendas - setorista.comissao - setorista.premios - setorista.despesas)}
+                          {formatCurrency(setorista.vendas - setorista.comissao - setorista.comissaoRetida - setorista.premios - setorista.despesas)}
                         </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-6">
+                      <TableCell colSpan={8} className="text-center py-6">
                         Nenhum movimento encontrado para o período selecionado.
                       </TableCell>
                     </TableRow>
@@ -1031,16 +1070,22 @@ const Index = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
+                        <span className="text-red-600">{formatCurrency(-totaisSetoristas.comissaoRetida)}</span>
+                        <span className="text-xs text-muted-foreground">{(totaisSetoristas.comissaoRetida / totaisSetoristas.vendas * 100).toFixed(1)}%</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
                         <span className="text-red-600">{formatCurrency(-totaisSetoristas.premios)}</span>
                         <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisSetoristas).premios}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right bg-green-50 font-bold">
                       <div className="flex flex-col">
-                        <span style={{ color: (totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios) >= 0 ? 'green' : 'red' }}>
-                          {formatCurrency(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios)}
+                        <span style={{ color: (totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.comissaoRetida - totaisSetoristas.premios) >= 0 ? 'green' : 'red' }}>
+                          {formatCurrency(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.comissaoRetida - totaisSetoristas.premios)}
                         </span>
-                        <span className="text-xs text-muted-foreground">{(((totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios) / totaisSetoristas.vendas) * 100).toFixed(1)}%</span>
+                        <span className="text-xs text-muted-foreground">{(((totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.comissaoRetida - totaisSetoristas.premios) / totaisSetoristas.vendas) * 100).toFixed(1)}%</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -1050,11 +1095,11 @@ const Index = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-right bg-blue-50 font-bold text-lg" style={{ 
-                      color: (totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios - totaisSetoristas.despesas) >= 0 ? 'blue' : 'red' 
+                      color: (totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.comissaoRetida - totaisSetoristas.premios - totaisSetoristas.despesas) >= 0 ? 'blue' : 'red' 
                     }}>
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios - totaisSetoristas.despesas)}</span>
-                        <span className="text-xs text-muted-foreground">{(((totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios - totaisSetoristas.despesas) / totaisSetoristas.vendas) * 100).toFixed(1)}%</span>
+                        <span>{formatCurrency(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.comissaoRetida - totaisSetoristas.premios - totaisSetoristas.despesas)}</span>
+                        <span className="text-xs text-muted-foreground">{(((totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.comissaoRetida - totaisSetoristas.premios - totaisSetoristas.despesas) / totaisSetoristas.vendas) * 100).toFixed(1)}%</span>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -1116,6 +1161,7 @@ const Index = () => {
                     <TableHead className="w-[80px]">Data</TableHead>
                     <TableHead className="text-right">Vendas</TableHead>
                     <TableHead className="text-right">(-) Comissão</TableHead>
+                    <TableHead className="text-right">(-) Comissão Retida</TableHead>
                     <TableHead className="text-right">(-) Prêmios</TableHead>
                     <TableHead className="text-right bg-green-50">(=) Líquido</TableHead>
                     <TableHead className="text-right">(-) Despesas</TableHead>
@@ -1130,23 +1176,24 @@ const Index = () => {
                         <TableCell className="font-medium">{dia.data}</TableCell>
                         <TableCell className="text-right font-medium">{formatCurrency(dia.vendas)}</TableCell>
                         <TableCell className="text-right text-red-600">{formatCurrency(-dia.comissao)}</TableCell>
+                        <TableCell className="text-right text-red-600">{formatCurrency(-dia.comissaoRetida)}</TableCell>
                         <TableCell className="text-right text-red-600">{formatCurrency(-dia.premios)}</TableCell>
                         <TableCell className="text-right bg-green-50 font-semibold" style={{ 
-                          color: (dia.vendas - dia.comissao - dia.premios) >= 0 ? 'green' : 'red' 
+                          color: (dia.vendas - dia.comissao - dia.comissaoRetida - dia.premios) >= 0 ? 'green' : 'red' 
                         }}>
-                          {formatCurrency(dia.vendas - dia.comissao - dia.premios)}
+                          {formatCurrency(dia.vendas - dia.comissao - dia.comissaoRetida - dia.premios)}
                         </TableCell>
                         <TableCell className="text-right text-red-600">{formatCurrency(-dia.despesas)}</TableCell>
                         <TableCell className="text-right bg-blue-50 font-bold text-lg" style={{ 
-                          color: (dia.vendas - dia.comissao - dia.premios - dia.despesas) >= 0 ? 'blue' : 'red' 
+                          color: (dia.vendas - dia.comissao - dia.comissaoRetida - dia.premios - dia.despesas) >= 0 ? 'blue' : 'red' 
                         }}>
-                          {formatCurrency(dia.vendas - dia.comissao - dia.premios - dia.despesas)}
+                          {formatCurrency(dia.vendas - dia.comissao - dia.comissaoRetida - dia.premios - dia.despesas)}
                         </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-6">
+                      <TableCell colSpan={8} className="text-center py-6">
                         Nenhum movimento encontrado para o período selecionado.
                       </TableCell>
                     </TableRow>

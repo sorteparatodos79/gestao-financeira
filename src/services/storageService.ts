@@ -1,5 +1,5 @@
 // Serviço de armazenamento usando Supabase
-import { Despesa, Investimento, MovimentoFinanceiro, Setorista, Usuario, ExtraDiscount } from "@/types/models";
+import { Despesa, Investimento, MovimentoFinanceiro, Setorista, Usuario, ExtraDiscount, ComissaoRetida } from "@/types/models";
 import { parseDatabaseDate } from "@/utils/formatters";
 import { 
   setoristasService, 
@@ -7,7 +7,8 @@ import {
   movimentosService, 
   investimentosService,
   usuariosService,
-  descontosExtrasService 
+  descontosExtrasService,
+  comissoesRetidasService
 } from './supabaseService';
 
 // Funções para Setoristas
@@ -696,6 +697,98 @@ export const deleteDescontosExtrasByMesAno = async (mesAno: string): Promise<voi
     if (error) throw error;
   } catch (error) {
     console.error('Erro ao deletar descontos extras por mês/ano:', error);
+    throw error;
+  }
+};
+
+// Funções para Comissões Retidas
+export const getComissoesRetidas = async (): Promise<ComissaoRetida[]> => {
+  try {
+    const { data, error } = await comissoesRetidasService.getAll();
+    if (error) throw error;
+    
+    return data?.map(comissao => ({
+      id: comissao.id,
+      data: parseDatabaseDate(comissao.data),
+      setoristaId: comissao.setorista_id,
+      setorista: comissao.setoristas ? {
+        id: comissao.setoristas.id,
+        nome: comissao.setoristas.nome,
+        telefone: comissao.setoristas.telefone
+      } : undefined,
+      valor: comissao.valor,
+      descricao: comissao.descricao
+    })) || [];
+  } catch (error) {
+    console.error('Erro ao buscar comissões retidas:', error);
+    return [];
+  }
+};
+
+export const addComissaoRetida = async (comissaoRetida: Omit<ComissaoRetida, 'id'>): Promise<ComissaoRetida> => {
+  try {
+    const { data, error } = await comissoesRetidasService.create({
+      data: comissaoRetida.data.toISOString().split('T')[0],
+      setorista_id: comissaoRetida.setoristaId,
+      valor: comissaoRetida.valor,
+      descricao: comissaoRetida.descricao
+    });
+    
+    if (error) throw error;
+    
+    return {
+      id: data.id,
+      data: parseDatabaseDate(data.data),
+      setoristaId: data.setorista_id,
+      setorista: data.setoristas ? {
+        id: data.setoristas.id,
+        nome: data.setoristas.nome,
+        telefone: data.setoristas.telefone
+      } : undefined,
+      valor: data.valor,
+      descricao: data.descricao
+    };
+  } catch (error) {
+    console.error('Erro ao criar comissão retida:', error);
+    throw error;
+  }
+};
+
+export const updateComissaoRetida = async (comissaoRetida: ComissaoRetida): Promise<ComissaoRetida> => {
+  try {
+    const { data, error } = await comissoesRetidasService.update(comissaoRetida.id, {
+      data: comissaoRetida.data.toISOString().split('T')[0],
+      setorista_id: comissaoRetida.setoristaId,
+      valor: comissaoRetida.valor,
+      descricao: comissaoRetida.descricao
+    });
+    
+    if (error) throw error;
+    
+    return {
+      id: data.id,
+      data: parseDatabaseDate(data.data),
+      setoristaId: data.setorista_id,
+      setorista: data.setoristas ? {
+        id: data.setoristas.id,
+        nome: data.setoristas.nome,
+        telefone: data.setoristas.telefone
+      } : undefined,
+      valor: data.valor,
+      descricao: data.descricao
+    };
+  } catch (error) {
+    console.error('Erro ao atualizar comissão retida:', error);
+    throw error;
+  }
+};
+
+export const deleteComissaoRetida = async (id: string): Promise<void> => {
+  try {
+    const { error } = await comissoesRetidasService.delete(id);
+    if (error) throw error;
+  } catch (error) {
+    console.error('Erro ao deletar comissão retida:', error);
     throw error;
   }
 };

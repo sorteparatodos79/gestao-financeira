@@ -169,6 +169,30 @@ export interface Database {
           valor?: number;
         };
       };
+      comissoes_retidas: {
+        Row: {
+          id: string;
+          data: string;
+          setorista_id: string;
+          valor: number;
+          descricao?: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          data: string;
+          setorista_id: string;
+          valor: number;
+          descricao?: string;
+        };
+        Update: {
+          data?: string;
+          setorista_id?: string;
+          valor?: number;
+          descricao?: string;
+        };
+      };
     };
   };
 }
@@ -584,6 +608,81 @@ export const descontosExtrasService = {
       .from('descontos_extras')
       .delete()
       .eq('mes_ano', mesAno);
+    return { error };
+  }
+};
+
+// Funções para comissões retidas
+export const comissoesRetidasService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('comissoes_retidas')
+      .select(`
+        *,
+        setoristas:setorista_id (
+          id,
+          nome,
+          telefone
+        )
+      `)
+      .order('data', { ascending: false });
+    return { data, error };
+  },
+
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from('comissoes_retidas')
+      .select(`
+        *,
+        setoristas:setorista_id (
+          id,
+          nome,
+          telefone
+        )
+      `)
+      .eq('id', id)
+      .single();
+    return { data, error };
+  },
+
+  async create(comissaoRetida: Database['public']['Tables']['comissoes_retidas']['Insert']) {
+    const { data, error } = await supabase
+      .from('comissoes_retidas')
+      .insert(comissaoRetida)
+      .select(`
+        *,
+        setoristas:setorista_id (
+          id,
+          nome,
+          telefone
+        )
+      `)
+      .single();
+    return { data, error };
+  },
+
+  async update(id: string, comissaoRetida: Database['public']['Tables']['comissoes_retidas']['Update']) {
+    const { data, error } = await supabase
+      .from('comissoes_retidas')
+      .update(comissaoRetida)
+      .eq('id', id)
+      .select(`
+        *,
+        setoristas:setorista_id (
+          id,
+          nome,
+          telefone
+        )
+      `)
+      .single();
+    return { data, error };
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('comissoes_retidas')
+      .delete()
+      .eq('id', id);
     return { error };
   }
 };

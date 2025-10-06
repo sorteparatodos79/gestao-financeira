@@ -14,7 +14,8 @@ import {
   MenuIcon,
   UserPlus,
   LogOut,
-  Calculator
+  Calculator,
+  Shield
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,7 @@ const SidebarContent = ({ pathname }: SidebarContentProps) => {
     { to: "/setoristas", label: "Setoristas", icon: <Users size={20} /> },
     { to: "/despesas", label: "Despesas", icon: <CreditCard size={20} /> },
     { to: "/movimentos", label: "Movimentos", icon: <ShoppingBag size={20} /> },
+    { to: "/comissoes-retidas", label: "Comissões Retidas", icon: <Shield size={20} /> },
     { to: "/investimentos", label: "Investimentos", icon: <PiggyBank size={20} /> },
     { to: "/relatorios", label: "Relatórios", icon: <FileText size={20} /> },
     { to: "/projecao", label: "Projeção", icon: <Calculator size={20} /> },

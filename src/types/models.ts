@@ -80,3 +80,12 @@ export interface ExtraDiscount {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export type ComissaoRetida = {
+  id: string;
+  data: Date;
+  setoristaId: string;
+  setorista?: Setorista;
+  valor: number;
+  descricao?: string;
+}

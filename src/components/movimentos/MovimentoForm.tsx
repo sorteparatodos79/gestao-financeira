@@ -26,9 +26,6 @@ const formSchema = z.object({
   comissao: z.string().refine((value) => !isNaN(Number(value)) && Number(value) >= 0, {
     message: 'Valor de comissão deve ser um número positivo'
   }),
-  comissaoRetida: z.string().refine((value) => !isNaN(Number(value)) && Number(value) >= 0, {
-    message: 'Valor de comissão retida deve ser um número positivo'
-  }),
   premios: z.string().refine((value) => !isNaN(Number(value)) && Number(value) >= 0, {
     message: 'Valor de prêmios deve ser um número positivo'
   })
@@ -51,7 +48,6 @@ const MovimentoForm = ({ movimento, isEdit }: MovimentoFormProps) => {
       setoristaId: movimento?.setoristaId || '',
       vendas: movimento?.vendas?.toString() || '0',
       comissao: movimento?.comissao?.toString() || '0',
-      comissaoRetida: movimento?.comissaoRetida?.toString() || '0',
       premios: movimento?.premios?.toString() || '0',
     }
   });
@@ -74,14 +70,12 @@ const MovimentoForm = ({ movimento, isEdit }: MovimentoFormProps) => {
     const values = form.getValues();
     const vendas = Number(values.vendas) || 0;
     const comissao = Number(values.comissao) || 0;
-    const comissaoRetida = Number(values.comissaoRetida) || 0;
     const premios = Number(values.premios) || 0;
-    const liquido = vendas - comissao - comissaoRetida - premios;
+    const liquido = vendas - comissao - premios;
     setValorLiquido(liquido);
   }, [
     form.watch('vendas'),
     form.watch('comissao'),
-    form.watch('comissaoRetida'),
     form.watch('premios')
   ]);
 
@@ -93,7 +87,7 @@ const MovimentoForm = ({ movimento, isEdit }: MovimentoFormProps) => {
         setoristaId: data.setoristaId,
         vendas: Number(data.vendas),
         comissao: Number(data.comissao),
-        comissaoRetida: Number(data.comissaoRetida),
+        comissaoRetida: 0, // Campo removido do formulário, sempre será 0
         premios: Number(data.premios),
         despesas: 0, // Mantemos este campo como zero, pois despesas são registradas em outra tela
         valorLiquido: valorLiquido
@@ -156,7 +150,7 @@ const MovimentoForm = ({ movimento, isEdit }: MovimentoFormProps) => {
               )}
             />
 
-            <div className="grid grid-cols-4 gap-4 col-span-3">
+            <div className="grid grid-cols-3 gap-4 col-span-3">
               <FormField
                 control={form.control}
                 name="vendas"
@@ -216,26 +210,6 @@ const MovimentoForm = ({ movimento, isEdit }: MovimentoFormProps) => {
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="comissaoRetida"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Comissão Retida (R$)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0,00"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             <div className="col-span-1 md:col-span-3">
@@ -253,7 +227,7 @@ const MovimentoForm = ({ movimento, isEdit }: MovimentoFormProps) => {
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Calculado automaticamente <br/>
-                  (Vendas - Comissão - Prêmios - Comissão Retida)
+                  (Vendas - Comissão - Prêmios)
                 </div>
               </div>
             </div>
