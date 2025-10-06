@@ -353,9 +353,26 @@ const InvestimentosList = () => {
     }
   };
   
-  // Filtros
-  const [dataInicial, setDataInicial] = useState('');
-  const [dataFinal, setDataFinal] = useState('');
+  // Filtros (padrão: mês atual)
+  const getCurrentMonthRange = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
+    const toInput = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+    return { ini: toInput(first), fim: toInput(last) };
+  };
+
+  const currentRange = getCurrentMonthRange();
+
+  const [dataInicial, setDataInicial] = useState(currentRange.ini);
+  const [dataFinal, setDataFinal] = useState(currentRange.fim);
   const [setoristaId, setSetoristaId] = useState('all');
   const [tipoInvestimento, setTipoInvestimento] = useState('all');
 
@@ -427,8 +444,9 @@ const InvestimentosList = () => {
   };
 
   const limparFiltros = () => {
-    setDataInicial('');
-    setDataFinal('');
+    const range = getCurrentMonthRange();
+    setDataInicial(range.ini);
+    setDataFinal(range.fim);
     setSetoristaId('all');
     setTipoInvestimento('all');
   };

@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { getComissoesRetidas, deleteComissaoRetida } from '@/services/storageService';
-import { ComissaoRetida } from '@/types/models';
+import { getComissoesRetidas, deleteComissaoRetida, getSetoristas } from '@/services/storageService';
+import { ComissaoRetida, Setorista } from '@/types/models';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { SimpleSelect, SimpleSelectItem } from '@/components/ui/simple-select';
 import { 
   Table, 
   TableBody, 
@@ -25,21 +28,51 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2, Calendar, User, DollarSign } from 'lucide-react';
+import { Plus, Edit, Trash2 } from 'lucide-react';
 
 const ComissoesRetidasList = () => {
   const [comissoesRetidas, setComissoesRetidas] = useState<ComissaoRetida[]>([]);
   const [loading, setLoading] = useState(true);
+  const [setoristas, setSetoristas] = useState<Setorista[]>([]);
+  // Filtros de data (padrão: mês atual)
+  const getCurrentMonthRange = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
+    const toInput = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+    return { ini: toInput(first), fim: toInput(last) };
+  };
+  const currentRange = getCurrentMonthRange();
+  const [dataInicial, setDataInicial] = useState(currentRange.ini);
+  const [dataFinal, setDataFinal] = useState(currentRange.fim);
+  const [setoristaId, setSetoristaId] = useState<string>('all');
 
   useEffect(() => {
     carregarComissoesRetidas();
+    getSetoristas().then(setSetoristas).catch(() => {});
   }, []);
 
   const carregarComissoesRetidas = async () => {
     try {
       setLoading(true);
       const lista = await getComissoesRetidas();
-      setComissoesRetidas(lista);
+      // aplicar filtro do intervalo selecionado e setorista (se houver)
+      const ini = new Date(dataInicial + 'T00:00:00');
+      const fim = new Date(dataFinal + 'T23:59:59');
+      const filtrada = lista.filter(c => {
+        const d = new Date(c.data);
+        const inRange = d >= ini && d <= fim;
+        const matchSetorista = setoristaId === 'all' || c.setoristaId === setoristaId;
+        return inRange && matchSetorista;
+      });
+      setComissoesRetidas(filtrada);
     } catch (error) {
       console.error('Erro ao carregar comissões retidas:', error);
       toast.error('Erro ao carregar comissões retidas');
@@ -47,6 +80,10 @@ const ComissoesRetidasList = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    carregarComissoesRetidas();
+  }, [dataInicial, dataFinal, setoristaId]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -71,6 +108,48 @@ const ComissoesRetidasList = () => {
 
   return (
     <div className="space-y-6">
+      {/* Filtros */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Filtros</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="data-inicial">Data inicial</Label>
+              <Input id="data-inicial" type="date" value={dataInicial} onChange={(e) => setDataInicial(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="data-final">Data final</Label>
+              <Input id="data-final" type="date" value={dataFinal} onChange={(e) => setDataFinal(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Setorista</Label>
+              <SimpleSelect value={setoristaId} onValueChange={setSetoristaId} placeholder="Todos">
+                <SimpleSelectItem value="all">Todos</SimpleSelectItem>
+                {setoristas.map((s) => (
+                  <SimpleSelectItem key={s.id} value={s.id}>{s.nome}</SimpleSelectItem>
+                ))}
+              </SimpleSelect>
+            </div>
+            <div className="flex items-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const r = getCurrentMonthRange();
+                  setDataInicial(r.ini);
+                  setDataFinal(r.fim);
+                  setSetoristaId('all');
+                }}
+                className="w-full"
+              >
+                Limpar Filtros
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Comissões Retidas</h1>
@@ -86,49 +165,6 @@ const ComissoesRetidasList = () => {
         </Button>
       </div>
 
-      {/* Cards de resumo */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Registros</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{comissoesRetidas.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Comissões retidas cadastradas
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalComissoesRetidas)}</div>
-            <p className="text-xs text-muted-foreground">
-              Total em comissões retidas
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Setoristas Únicos</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {new Set(comissoesRetidas.map(c => c.setoristaId)).size}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Setoristas com comissões retidas
-            </p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Tabela de comissões retidas */}
       <Card>
