@@ -1217,16 +1217,22 @@ const Index = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col">
+                        <span className="text-red-600">{formatCurrency(-totaisDiarios.comissaoRetida)}</span>
+                        <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).comissaoRetida}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col">
                         <span className="text-red-600">{formatCurrency(-totaisDiarios.premios)}</span>
                         <span className="text-xs text-muted-foreground">{calcularPorcentagens(totaisDiarios).premios}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right bg-green-50 font-bold">
                       <div className="flex flex-col">
-                        <span style={{ color: (totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios) >= 0 ? 'green' : 'red' }}>
-                          {formatCurrency(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios)}
+                        <span style={{ color: (totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.comissaoRetida - totaisDiarios.premios) >= 0 ? 'green' : 'red' }}>
+                          {formatCurrency(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.comissaoRetida - totaisDiarios.premios)}
                         </span>
-                        <span className="text-xs text-muted-foreground">{(((totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios) / totaisDiarios.vendas) * 100).toFixed(1)}%</span>
+                        <span className="text-xs text-muted-foreground">{(((totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.comissaoRetida - totaisDiarios.premios) / totaisDiarios.vendas) * 100).toFixed(1)}%</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -1236,11 +1242,11 @@ const Index = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-right bg-blue-50 font-bold text-lg" style={{ 
-                      color: (totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios - totaisDiarios.despesas) >= 0 ? 'blue' : 'red' 
+                      color: (totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.comissaoRetida - totaisDiarios.premios - totaisDiarios.despesas) >= 0 ? 'blue' : 'red' 
                     }}>
                       <div className="flex flex-col">
-                        <span>{formatCurrency(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios - totaisDiarios.despesas)}</span>
-                        <span className="text-xs text-muted-foreground">{(((totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios - totaisDiarios.despesas) / totaisDiarios.vendas) * 100).toFixed(1)}%</span>
+                        <span>{formatCurrency(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.comissaoRetida - totaisDiarios.premios - totaisDiarios.despesas)}</span>
+                        <span className="text-xs text-muted-foreground">{(((totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.comissaoRetida - totaisDiarios.premios - totaisDiarios.despesas) / totaisDiarios.vendas) * 100).toFixed(1)}%</span>
                       </div>
                     </TableCell>
                   </TableRow>
