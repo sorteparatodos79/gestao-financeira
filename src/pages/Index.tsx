@@ -132,6 +132,7 @@ const Index = () => {
               <th>Setorista</th>
               <th class="text-right">Vendas</th>
               <th class="text-right">(-) Comissão</th>
+              <th class="text-right">(-) Comissão Retida</th>
               <th class="text-right">(-) Prêmios</th>
               <th class="text-right" style="background: #dcfce7;">(=) Líquido</th>
               <th class="text-right">(-) Despesas</th>
@@ -144,8 +145,9 @@ const Index = () => {
                 <td>${setorista.nome}</td>
                 <td class="text-right font-bold">${formatCurrency(setorista.vendas)}</td>
                 <td class="text-right negative">${formatCurrency(-setorista.comissao)}</td>
+                <td class="text-right negative">${formatCurrency(-setorista.comissaoRetida)}</td>
                 <td class="text-right negative">${formatCurrency(-setorista.premios)}</td>
-                <td class="text-right font-bold ${(setorista.vendas - setorista.comissao - setorista.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">${formatCurrency(setorista.vendas - setorista.comissao - setorista.premios)}</td>
+                <td class="text-right font-bold ${(setorista.vendas - setorista.comissao - setorista.comissaoRetida - setorista.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">${formatCurrency(setorista.vendas - setorista.comissao - setorista.comissaoRetida - setorista.premios)}</td>
                 <td class="text-right negative">${formatCurrency(-setorista.despesas)}</td>
                 <td class="text-right font-bold ${setorista.valorLiquido >= 0 ? 'positive' : 'negative'}" style="background: #dbeafe;">${formatCurrency(setorista.valorLiquido)}</td>
               </tr>
@@ -163,12 +165,16 @@ const Index = () => {
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(totaisSetoristas.comissao / totaisSetoristas.vendas * 100).toFixed(1)}%</div>
               </td>
               <td class="text-right">
+                <strong class="negative">${formatCurrency(-totaisSetoristas.comissaoRetida)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.comissaoRetida}</div>
+              </td>
+              <td class="text-right">
                 <strong class="negative">${formatCurrency(-totaisSetoristas.premios)}</strong>
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensSetoristas.premios}</div>
               </td>
-              <td class="text-right font-bold ${(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">
-                <strong>${formatCurrency(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios)}</strong>
-                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(((totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios) / totaisSetoristas.vendas) * 100).toFixed(1)}%</div>
+              <td class="text-right font-bold ${(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.comissaoRetida - totaisSetoristas.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">
+                <strong>${formatCurrency(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.comissaoRetida - totaisSetoristas.premios)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(((totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.comissaoRetida - totaisSetoristas.premios) / totaisSetoristas.vendas) * 100).toFixed(1)}%</div>
               </td>
               <td class="text-right">
                 <strong class="negative">${formatCurrency(-totaisSetoristas.despesas)}</strong>
@@ -193,6 +199,7 @@ const Index = () => {
               <th>Data</th>
               <th class="text-right">Vendas</th>
               <th class="text-right">(-) Comissão</th>
+              <th class="text-right">(-) Comissão Retida</th>
               <th class="text-right">(-) Prêmios</th>
               <th class="text-right" style="background: #dcfce7;">(=) Líquido</th>
               <th class="text-right">(-) Despesas</th>
@@ -205,8 +212,9 @@ const Index = () => {
                 <td>${dia.data}</td>
                 <td class="text-right font-bold">${formatCurrency(dia.vendas)}</td>
                 <td class="text-right negative">${formatCurrency(-dia.comissao)}</td>
+                <td class="text-right negative">${formatCurrency(-dia.comissaoRetida)}</td>
                 <td class="text-right negative">${formatCurrency(-dia.premios)}</td>
-                <td class="text-right font-bold ${(dia.vendas - dia.comissao - dia.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">${formatCurrency(dia.vendas - dia.comissao - dia.premios)}</td>
+                <td class="text-right font-bold ${(dia.vendas - dia.comissao - dia.comissaoRetida - dia.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">${formatCurrency(dia.vendas - dia.comissao - dia.comissaoRetida - dia.premios)}</td>
                 <td class="text-right negative">${formatCurrency(-dia.despesas)}</td>
                 <td class="text-right font-bold ${dia.valorLiquido >= 0 ? 'positive' : 'negative'}" style="background: #dbeafe;">${formatCurrency(dia.valorLiquido)}</td>
               </tr>
@@ -224,12 +232,16 @@ const Index = () => {
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(totaisDiarios.comissao / totaisDiarios.vendas * 100).toFixed(1)}%</div>
               </td>
               <td class="text-right">
+                <strong class="negative">${formatCurrency(-totaisDiarios.comissaoRetida)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.comissaoRetida}</div>
+              </td>
+              <td class="text-right">
                 <strong class="negative">${formatCurrency(-totaisDiarios.premios)}</strong>
                 <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${porcentagensDiarios.premios}</div>
               </td>
-              <td class="text-right font-bold ${(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">
-                <strong>${formatCurrency(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios)}</strong>
-                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(((totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.premios) / totaisDiarios.vendas) * 100).toFixed(1)}%</div>
+              <td class="text-right font-bold ${(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.comissaoRetida - totaisDiarios.premios) >= 0 ? 'positive' : 'negative'}" style="background: #dcfce7;">
+                <strong>${formatCurrency(totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.comissaoRetida - totaisDiarios.premios)}</strong>
+                <div style="font-size: 10px; font-weight: normal; color: #9ca3af;">${(((totaisDiarios.vendas - totaisDiarios.comissao - totaisDiarios.comissaoRetida - totaisDiarios.premios) / totaisDiarios.vendas) * 100).toFixed(1)}%</div>
               </td>
               <td class="text-right">
                 <strong class="negative">${formatCurrency(-totaisDiarios.despesas)}</strong>
