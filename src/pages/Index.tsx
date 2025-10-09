@@ -947,7 +947,8 @@ const Index = () => {
     });
     
     // Adicionar comissões retidas separadas no resumo diário
-    comissoesRetidas.forEach(comissaoRetida => {
+    console.log('Processando comissões retidas para resumo diário:', comissoesRetidasParaProcessar.length, 'comissões');
+    comissoesRetidasParaProcessar.forEach(comissaoRetida => {
       const dataComissao = new Date(comissaoRetida.data);
       if (dataComissao.getFullYear() === ano && dataComissao.getMonth() + 1 === mes) {
         const dataKey = format(dataComissao, 'dd/MM');
@@ -964,6 +965,7 @@ const Index = () => {
           };
         }
         
+        console.log('Adicionando comissão retida ao dia:', dataKey, 'valor:', comissaoRetida.valor);
         resumoPorDia[dataKey].comissaoRetida += comissaoRetida.valor || 0;
         resumoPorDia[dataKey].valorLiquido -= comissaoRetida.valor || 0;
       }
