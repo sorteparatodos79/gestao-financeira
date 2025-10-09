@@ -89,3 +89,14 @@ export type ComissaoRetida = {
   valor: number;
   descricao?: string;
 }
+
+export type Vale = {
+  id: string;
+  data: Date;
+  setoristaId: string;
+  setorista?: Setorista;
+  valor: number;
+  descricao?: string;
+  recebido: boolean;
+  dataRecebimento?: Date;
+}

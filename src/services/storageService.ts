@@ -1,5 +1,5 @@
 // Serviço de armazenamento usando Supabase
-import { Despesa, Investimento, MovimentoFinanceiro, Setorista, Usuario, ExtraDiscount, ComissaoRetida } from "@/types/models";
+import { Despesa, Investimento, MovimentoFinanceiro, Setorista, Usuario, ExtraDiscount, ComissaoRetida, Vale } from "@/types/models";
 import { parseDatabaseDate } from "@/utils/formatters";
 import { 
   setoristasService, 
@@ -8,7 +8,8 @@ import {
   investimentosService,
   usuariosService,
   descontosExtrasService,
-  comissoesRetidasService
+  comissoesRetidasService,
+  valesService
 } from './supabaseService';
 
 // Funções para Setoristas
@@ -789,6 +790,142 @@ export const deleteComissaoRetida = async (id: string): Promise<void> => {
     if (error) throw error;
   } catch (error) {
     console.error('Erro ao deletar comissão retida:', error);
+    throw error;
+  }
+};
+
+// Funções para vales
+export const getVales = async (): Promise<Vale[]> => {
+  try {
+    console.log('Chamando valesService.getAll()...');
+    const { data, error } = await valesService.getAll();
+    
+    if (error) throw error;
+    
+    console.log('Dados brutos do Supabase:', data?.length || 0, 'registros');
+    
+    const vales: Vale[] = (data || []).map(item => ({
+      id: item.id,
+      data: parseDatabaseDate(item.data),
+      setoristaId: item.setorista_id,
+      setorista: item.setoristas ? {
+        id: item.setoristas.id,
+        nome: item.setoristas.nome,
+        telefone: item.setoristas.telefone
+      } : undefined,
+      valor: item.valor,
+      descricao: item.descricao,
+      recebido: item.recebido,
+      dataRecebimento: item.data_recebimento ? parseDatabaseDate(item.data_recebimento) : undefined
+    }));
+    
+    console.log('Vales processados:', vales.length);
+    return vales;
+  } catch (error) {
+    console.error('Erro ao buscar vales:', error);
+    throw error;
+  }
+};
+
+export const getValeById = async (id: string): Promise<Vale | null> => {
+  try {
+    const { data, error } = await valesService.getById(id);
+    
+    if (error) throw error;
+    if (!data) return null;
+    
+    return {
+      id: data.id,
+      data: parseDatabaseDate(data.data),
+      setoristaId: data.setorista_id,
+      setorista: data.setoristas ? {
+        id: data.setoristas.id,
+        nome: data.setoristas.nome,
+        telefone: data.setoristas.telefone
+      } : undefined,
+      valor: data.valor,
+      descricao: data.descricao,
+      recebido: data.recebido,
+      dataRecebimento: data.data_recebimento ? parseDatabaseDate(data.data_recebimento) : undefined
+    };
+  } catch (error) {
+    console.error('Erro ao buscar vale por ID:', error);
+    throw error;
+  }
+};
+
+export const addVale = async (vale: Omit<Vale, 'id'>): Promise<Vale> => {
+  try {
+    const { data, error } = await valesService.create({
+      data: vale.data.toISOString().split('T')[0],
+      setorista_id: vale.setoristaId,
+      valor: vale.valor,
+      descricao: vale.descricao,
+      recebido: vale.recebido || false,
+      data_recebimento: vale.dataRecebimento?.toISOString().split('T')[0]
+    });
+    
+    if (error) throw error;
+    
+    return {
+      id: data.id,
+      data: parseDatabaseDate(data.data),
+      setoristaId: data.setorista_id,
+      setorista: data.setoristas ? {
+        id: data.setoristas.id,
+        nome: data.setoristas.nome,
+        telefone: data.setoristas.telefone
+      } : undefined,
+      valor: data.valor,
+      descricao: data.descricao,
+      recebido: data.recebido,
+      dataRecebimento: data.data_recebimento ? parseDatabaseDate(data.data_recebimento) : undefined
+    };
+  } catch (error) {
+    console.error('Erro ao criar vale:', error);
+    throw error;
+  }
+};
+
+export const updateVale = async (vale: Vale): Promise<Vale> => {
+  try {
+    const { data, error } = await valesService.update(vale.id, {
+      data: vale.data.toISOString().split('T')[0],
+      setorista_id: vale.setoristaId,
+      valor: vale.valor,
+      descricao: vale.descricao,
+      recebido: vale.recebido,
+      data_recebimento: vale.dataRecebimento?.toISOString().split('T')[0]
+    });
+    
+    if (error) throw error;
+    
+    return {
+      id: data.id,
+      data: parseDatabaseDate(data.data),
+      setoristaId: data.setorista_id,
+      setorista: data.setoristas ? {
+        id: data.setoristas.id,
+        nome: data.setoristas.nome,
+        telefone: data.setoristas.telefone
+      } : undefined,
+      valor: data.valor,
+      descricao: data.descricao,
+      recebido: data.recebido,
+      dataRecebimento: data.data_recebimento ? parseDatabaseDate(data.data_recebimento) : undefined
+    };
+  } catch (error) {
+    console.error('Erro ao atualizar vale:', error);
+    throw error;
+  }
+};
+
+export const deleteVale = async (id: string): Promise<void> => {
+  try {
+    const { error } = await valesService.delete(id);
+    if (error) throw error;
+  } catch (error) {
+    console.error('Erro ao deletar vale:', error);
     throw error;
   }
 };

@@ -193,6 +193,36 @@ export interface Database {
           descricao?: string;
         };
       };
+      vales: {
+        Row: {
+          id: string;
+          data: string;
+          setorista_id: string;
+          valor: number;
+          descricao?: string;
+          recebido: boolean;
+          data_recebimento?: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          data: string;
+          setorista_id: string;
+          valor: number;
+          descricao?: string;
+          recebido?: boolean;
+          data_recebimento?: string;
+        };
+        Update: {
+          data?: string;
+          setorista_id?: string;
+          valor?: number;
+          descricao?: string;
+          recebido?: boolean;
+          data_recebimento?: string;
+        };
+      };
     };
   };
 }
@@ -681,6 +711,81 @@ export const comissoesRetidasService = {
   async delete(id: string) {
     const { error } = await supabase
       .from('comissoes_retidas')
+      .delete()
+      .eq('id', id);
+    return { error };
+  }
+};
+
+// Funções para vales
+export const valesService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('vales')
+      .select(`
+        *,
+        setoristas:setorista_id (
+          id,
+          nome,
+          telefone
+        )
+      `)
+      .order('data', { ascending: false });
+    return { data, error };
+  },
+
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from('vales')
+      .select(`
+        *,
+        setoristas:setorista_id (
+          id,
+          nome,
+          telefone
+        )
+      `)
+      .eq('id', id)
+      .single();
+    return { data, error };
+  },
+
+  async create(vale: Database['public']['Tables']['vales']['Insert']) {
+    const { data, error } = await supabase
+      .from('vales')
+      .insert(vale)
+      .select(`
+        *,
+        setoristas:setorista_id (
+          id,
+          nome,
+          telefone
+        )
+      `)
+      .single();
+    return { data, error };
+  },
+
+  async update(id: string, vale: Database['public']['Tables']['vales']['Update']) {
+    const { data, error } = await supabase
+      .from('vales')
+      .update(vale)
+      .eq('id', id)
+      .select(`
+        *,
+        setoristas:setorista_id (
+          id,
+          nome,
+          telefone
+        )
+      `)
+      .single();
+    return { data, error };
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('vales')
       .delete()
       .eq('id', id);
     return { error };

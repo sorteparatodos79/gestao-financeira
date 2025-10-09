@@ -20,10 +20,8 @@ import InvestimentoPage from "./pages/investimentos/InvestimentoPage";
 import UsuariosList from "./pages/usuarios/UsuariosList";
 import UsuarioPage from "./pages/usuarios/UsuarioPage";
 import CriarAdmin from "./pages/usuarios/CriarAdmin";
-import RelatoriosPage from "./pages/relatorios/RelatoriosPage";
-import RelatorioDespesas from "./pages/relatorios/RelatorioDespesas";
-import RelatorioMovimentos from "./pages/relatorios/RelatorioMovimentos";
-import RelatorioInvestimentos from "./pages/relatorios/RelatorioInvestimentos";
+import ValesList from "./pages/vales/ValesList";
+import ValePage from "./pages/vales/ValePage";
 import ProjecaoPage from "./pages/projecao/ProjecaoPage";
 import ComissoesRetidasList from "./pages/comissoes-retidas/ComissoesRetidasList";
 import ComissaoRetidaPage from "./pages/comissoes-retidas/ComissaoRetidaPage";
@@ -193,32 +191,25 @@ const AppRoutes = () => {
         </AdminRoute>
       } />
       
-      {/* Rotas de Relatórios */}
-      <Route path="/relatorios" element={
+      {/* Rotas de Vales */}
+      <Route path="/vales" element={
         <ProtectedRoute>
           <Layout>
-            <RelatoriosPage />
+            <ValesList />
           </Layout>
         </ProtectedRoute>
       } />
-      <Route path="/relatorios/despesas" element={
+      <Route path="/vales/novo" element={
         <ProtectedRoute>
           <Layout>
-            <RelatorioDespesas />
+            <ValePage />
           </Layout>
         </ProtectedRoute>
       } />
-      <Route path="/relatorios/movimentos" element={
+      <Route path="/vales/editar/:id" element={
         <ProtectedRoute>
           <Layout>
-            <RelatorioMovimentos />
-          </Layout>
-        </ProtectedRoute>
-      } />
-      <Route path="/relatorios/investimentos" element={
-        <ProtectedRoute>
-          <Layout>
-            <RelatorioInvestimentos />
+            <ValePage />
           </Layout>
         </ProtectedRoute>
       } />
