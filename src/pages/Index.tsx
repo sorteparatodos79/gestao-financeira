@@ -783,13 +783,14 @@ const Index = () => {
         setSetoristas(listaSetoristas);
         
         const listaComissoesRetidas = await getComissoesRetidas();
+        console.log('Comissões retidas carregadas:', listaComissoesRetidas);
         setComissoesRetidas(listaComissoesRetidas);
         
         // Carregar descontos extras para o mês atual
         const descontosExtras = await getDescontosExtrasByMesAno(filtroMes);
         setExtraDiscounts(descontosExtras);
         
-        await atualizarDados(filtroMes);
+        await atualizarDados(filtroMes, listaComissoesRetidas);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
       }
@@ -798,7 +799,7 @@ const Index = () => {
     carregarDados();
   }, [filtroMes]);
   
-  const atualizarDados = async (mesAno: string) => {
+  const atualizarDados = async (mesAno: string, comissoesRetidasParam?: ComissaoRetida[]) => {
     try {
       const [ano, mes] = mesAno.split('-').map(Number);
       
@@ -867,12 +868,28 @@ const Index = () => {
     });
     
     // Adicionar comissões retidas separadas
-    comissoesRetidas.forEach(comissaoRetida => {
+    const comissoesRetidasParaProcessar = comissoesRetidasParam || comissoesRetidas;
+    console.log('Processando comissões retidas:', comissoesRetidasParaProcessar.length, 'comissões');
+    console.log('Filtro de mês:', mes, 'ano:', ano);
+    
+    comissoesRetidasParaProcessar.forEach(comissaoRetida => {
       const dataComissao = new Date(comissaoRetida.data);
+      console.log('Comissão retida:', {
+        data: comissaoRetida.data,
+        dataComissao: dataComissao,
+        anoComissao: dataComissao.getFullYear(),
+        mesComissao: dataComissao.getMonth() + 1,
+        setoristaId: comissaoRetida.setoristaId,
+        valor: comissaoRetida.valor
+      });
+      
       if (dataComissao.getFullYear() === ano && dataComissao.getMonth() + 1 === mes) {
+        console.log('Comissão retida incluída no mês:', comissaoRetida);
         if (!resumoSetorista[comissaoRetida.setoristaId]) return;
         resumoSetorista[comissaoRetida.setoristaId].comissaoRetida += comissaoRetida.valor || 0;
         resumoSetorista[comissaoRetida.setoristaId].valorLiquido -= comissaoRetida.valor || 0;
+      } else {
+        console.log('Comissão retida NÃO incluída - fora do mês filtrado');
       }
     });
     
