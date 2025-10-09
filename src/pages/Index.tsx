@@ -598,6 +598,10 @@ const Index = () => {
     // Calcular valorLiquido dinamicamente incluindo comissão retida
     totais.valorLiquido = totais.vendas - totais.comissao - totais.comissaoRetida - totais.premios - totais.despesas;
     
+    console.log('Totais por setorista calculados:', totais);
+    console.log('Cálculo: vendas - comissao - comissaoRetida - premios - despesas = valorLiquido');
+    console.log(`${totais.vendas} - ${totais.comissao} - ${totais.comissaoRetida} - ${totais.premios} - ${totais.despesas} = ${totais.valorLiquido}`);
+    
     return totais;
   };
 
@@ -621,6 +625,10 @@ const Index = () => {
     
     // Calcular valorLiquido dinamicamente incluindo comissão retida
     totais.valorLiquido = totais.vendas - totais.comissao - totais.comissaoRetida - totais.premios - totais.despesas;
+    
+    console.log('Totais por dia calculados:', totais);
+    console.log('Cálculo diário: vendas - comissao - comissaoRetida - premios - despesas = valorLiquido');
+    console.log(`${totais.vendas} - ${totais.comissao} - ${totais.comissaoRetida} - ${totais.premios} - ${totais.despesas} = ${totais.valorLiquido}`);
     
     return totais;
   };
@@ -768,9 +776,9 @@ const Index = () => {
       <div className="pt-2 border-t flex justify-between items-center">
         <span className="font-bold">RESULTADO FINAL:</span>
         <span className="font-bold text-xl" style={{ 
-          color: calcularResultadoFinal(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios - totaisSetoristas.despesas) >= 0 ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' 
+          color: calcularResultadoFinal(totaisSetoristas.valorLiquido) >= 0 ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' 
         }}>
-          {formatCurrency(calcularResultadoFinal(totaisSetoristas.vendas - totaisSetoristas.comissao - totaisSetoristas.premios - totaisSetoristas.despesas))}
+          {formatCurrency(calcularResultadoFinal(totaisSetoristas.valorLiquido))}
         </span>
       </div>
     </div>
