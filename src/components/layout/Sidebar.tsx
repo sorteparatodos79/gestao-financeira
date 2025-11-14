@@ -16,7 +16,8 @@ import {
   LogOut,
   Calculator,
   Shield,
-  Receipt
+  Receipt,
+  TrendingUp
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -61,6 +62,7 @@ const SidebarContent = ({ pathname }: SidebarContentProps) => {
     { to: "/investimentos", label: "Investimentos", icon: <PiggyBank size={20} /> },
     { to: "/vales", label: "Vales", icon: <Receipt size={20} /> },
     { to: "/projecao", label: "Projeção", icon: <Calculator size={20} /> },
+    { to: "/analise-performance", label: "Análise de Performance", icon: <TrendingUp size={20} /> },
     { to: "/usuarios", label: "Usuários", icon: <UserPlus size={20} /> },
   ];
 

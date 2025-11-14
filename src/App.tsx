@@ -23,6 +23,7 @@ import CriarAdmin from "./pages/usuarios/CriarAdmin";
 import ValesList from "./pages/vales/ValesList";
 import ValePage from "./pages/vales/ValePage";
 import ProjecaoPage from "./pages/projecao/ProjecaoPage";
+import PerformanceAnalysisPage from "./pages/performance/PerformanceAnalysisPage";
 import ComissoesRetidasList from "./pages/comissoes-retidas/ComissoesRetidasList";
 import ComissaoRetidaPage from "./pages/comissoes-retidas/ComissaoRetidaPage";
 
@@ -242,6 +243,15 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <Layout>
             <ProjecaoPage />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      {/* Rota de Análise de Performance */}
+      <Route path="/analise-performance" element={
+        <ProtectedRoute>
+          <Layout>
+            <PerformanceAnalysisPage />
           </Layout>
         </ProtectedRoute>
       } />
