@@ -305,24 +305,24 @@ const PerformanceAnalysisPage = () => {
         padding: 20px;
         color: #0f172a;
         background: #fff;
-        font-size: 12px;
+        font-size: 14px;
       }
       header {
         margin-bottom: 14px;
       }
       h1 {
-        font-size: 22px;
+        font-size: 26px;
         margin: 0 0 8px 0;
         font-weight: bold;
       }
       h2 {
-        font-size: 16px;
+        font-size: 19px;
         margin: 14px 0 10px 0;
         font-weight: bold;
       }
       p {
         margin: 4px 0;
-        font-size: 11px;
+        font-size: 13px;
         line-height: 1.5;
       }
       section {
@@ -332,12 +332,12 @@ const PerformanceAnalysisPage = () => {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 14px;
-        font-size: 11px;
+        font-size: 13px;
       }
       th, td {
         border: 1px solid #e2e8f0;
-        padding: 7px 10px;
-        font-size: 11px;
+        padding: 8px 10px;
+        font-size: 13px;
         vertical-align: middle;
         line-height: 1.5;
       }
@@ -353,11 +353,11 @@ const PerformanceAnalysisPage = () => {
         border: 1px solid #e2e8f0;
         padding: 12px;
         margin-top: 12px;
-        font-size: 11px;
+        font-size: 13px;
       }
       small {
         color: #475569;
-        font-size: 10px;
+        font-size: 12px;
       }
       strong {
         font-weight: bold;
