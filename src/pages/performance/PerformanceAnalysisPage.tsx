@@ -23,8 +23,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { SimpleSelect, SimpleSelectItem } from "@/components/ui/simple-select";
 import { formatCurrency } from "@/utils/formatters";
-import { getDespesas, getMovimentos, getSetoristas } from "@/services/storageService";
-import { Despesa, MovimentoFinanceiro, Setorista } from "@/types/models";
+import { getDespesas, getMovimentos, getSetoristas, getInvestimentos, getComissoesRetidas } from "@/services/storageService";
+import { Despesa, MovimentoFinanceiro, Setorista, Investimento, ComissaoRetida } from "@/types/models";
 import { cn } from "@/lib/utils";
 import {
   CalendarIcon,
@@ -35,7 +35,7 @@ import {
   Printer,
 } from "lucide-react";
 
-type IndicatorKey = "vendas" | "comissao" | "premios" | "despesas" | "liquido";
+type IndicatorKey = "vendas" | "comissao" | "premios" | "despesas" | "investimentos" | "comissaoRetida" | "liquido";
 
 type MonthPerformance = Record<
   IndicatorKey,
@@ -68,6 +68,16 @@ const indicatorConfig: Record<
   despesas: {
     label: "Despesas",
     description: "Despesas operacionais registradas",
+    accent: "text-red-600",
+  },
+  investimentos: {
+    label: "Investimentos",
+    description: "Investimentos realizados no período",
+    accent: "text-red-600",
+  },
+  comissaoRetida: {
+    label: "Comissão Retida",
+    description: "Comissões retidas",
     accent: "text-red-600",
   },
   liquido: {
@@ -143,6 +153,8 @@ const emptyPerformance = (): MonthPerformance => ({
   comissao: 0,
   premios: 0,
   despesas: 0,
+  investimentos: 0,
+  comissaoRetida: 0,
   liquido: 0,
 });
 
@@ -150,6 +162,8 @@ const PerformanceAnalysisPage = () => {
   const [setoristas, setSetoristas] = useState<Setorista[]>([]);
   const [movimentos, setMovimentos] = useState<MovimentoFinanceiro[]>([]);
   const [despesas, setDespesas] = useState<Despesa[]>([]);
+  const [investimentos, setInvestimentos] = useState<Investimento[]>([]);
+  const [comissoesRetidas, setComissoesRetidas] = useState<ComissaoRetida[]>([]);
   const [selectedSetorista, setSelectedSetorista] = useState<string>("all");
   const [selectedMonths, setSelectedMonths] = useState<string[]>(() =>
     getDefaultMonths()
@@ -165,14 +179,18 @@ const PerformanceAnalysisPage = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [setoristasData, movimentosData, despesasData] = await Promise.all([
+        const [setoristasData, movimentosData, despesasData, investimentosData, comissoesRetidasData] = await Promise.all([
           getSetoristas(),
           getMovimentos(),
           getDespesas(),
+          getInvestimentos(),
+          getComissoesRetidas(),
         ]);
         setSetoristas(setoristasData);
         setMovimentos(movimentosData);
         setDespesas(despesasData);
+        setInvestimentos(investimentosData);
+        setComissoesRetidas(comissoesRetidasData);
       } catch (error) {
         console.error("Erro ao carregar dados de performance:", error);
       } finally {
@@ -187,12 +205,16 @@ const PerformanceAnalysisPage = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      const [movimentosAtualizados, despesasAtualizadas] = await Promise.all([
+      const [movimentosAtualizados, despesasAtualizadas, investimentosAtualizados, comissoesRetidasAtualizadas] = await Promise.all([
         getMovimentos(),
         getDespesas(),
+        getInvestimentos(),
+        getComissoesRetidas(),
       ]);
       setMovimentos(movimentosAtualizados);
       setDespesas(despesasAtualizadas);
+      setInvestimentos(investimentosAtualizados);
+      setComissoesRetidas(comissoesRetidasAtualizadas);
     } catch (error) {
       console.error("Erro ao atualizar dados:", error);
     } finally {
@@ -421,6 +443,30 @@ const PerformanceAnalysisPage = () => {
     });
   }, [despesas, selectedSetorista, sortedMonths]);
 
+  const filteredInvestimentos = useMemo(() => {
+    return investimentos.filter((investimento) => {
+      const matchesSetorista =
+        selectedSetorista === "all" ||
+        investimento.setoristaId === selectedSetorista;
+      const monthKey = monthKeyFromDate(investimento.data);
+      const matchesMonth =
+        !sortedMonths.length || sortedMonths.includes(monthKey);
+      return matchesSetorista && matchesMonth;
+    });
+  }, [investimentos, selectedSetorista, sortedMonths]);
+
+  const filteredComissoesRetidas = useMemo(() => {
+    return comissoesRetidas.filter((comissaoRetida) => {
+      const matchesSetorista =
+        selectedSetorista === "all" ||
+        comissaoRetida.setoristaId === selectedSetorista;
+      const monthKey = monthKeyFromDate(comissaoRetida.data);
+      const matchesMonth =
+        !sortedMonths.length || sortedMonths.includes(monthKey);
+      return matchesSetorista && matchesMonth;
+    });
+  }, [comissoesRetidas, selectedSetorista, sortedMonths]);
+
   const monthlyPerformance = useMemo(() => {
     const base: Record<string, MonthPerformance> = {};
 
@@ -446,13 +492,29 @@ const PerformanceAnalysisPage = () => {
       perf.despesas += despesa.valor || 0;
     });
 
+    filteredInvestimentos.forEach((investimento) => {
+      const monthKey = monthKeyFromDate(investimento.data);
+      const perf = base[monthKey];
+      if (!perf) return;
+
+      perf.investimentos += investimento.valor || 0;
+    });
+
+    filteredComissoesRetidas.forEach((comissaoRetida) => {
+      const monthKey = monthKeyFromDate(comissaoRetida.data);
+      const perf = base[monthKey];
+      if (!perf) return;
+
+      perf.comissaoRetida += comissaoRetida.valor || 0;
+    });
+
     sortedMonths.forEach((month) => {
       const perf = base[month];
-      perf.liquido = perf.vendas - perf.comissao - perf.premios - perf.despesas;
+      perf.liquido = perf.vendas - perf.comissao - perf.premios - perf.despesas - perf.investimentos - perf.comissaoRetida;
     });
 
     return base;
-  }, [filteredMovimentos, filteredDespesas, sortedMonths]);
+  }, [filteredMovimentos, filteredDespesas, filteredInvestimentos, filteredComissoesRetidas, sortedMonths]);
 
   const variationSummary = useMemo(() => {
     if (sortedMonths.length < 2) return [];
