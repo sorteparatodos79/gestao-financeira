@@ -239,8 +239,7 @@ const PerformanceAnalysisPage = () => {
         return `
           <tr>
             <td>
-              <strong>${indicatorConfig[key].label}</strong><br />
-              <small>${indicatorConfig[key].description}</small>
+              <strong>${indicatorConfig[key].label}</strong>
             </td>
             ${cells}
           </tr>
@@ -252,7 +251,7 @@ const PerformanceAnalysisPage = () => {
       .map(
         (month) => `
           <th class="text-right">
-            ${formatMonthLabel(month, { month: "long", year: "numeric" })}
+            ${formatMonthLabel(month, { month: "short", year: "2-digit" })}
           </th>`
       )
       .join("");
@@ -297,37 +296,54 @@ const PerformanceAnalysisPage = () => {
       .join(" • ");
 
     const styles = `
+      @page {
+        margin: 1.5cm;
+        size: A4;
+      }
       body {
         font-family: 'Segoe UI', Arial, sans-serif;
-        padding: 32px;
+        padding: 20px;
         color: #0f172a;
         background: #fff;
+        font-size: 12px;
+      }
+      header {
+        margin-bottom: 14px;
       }
       h1 {
-        font-size: 28px;
-        margin-bottom: 4px;
+        font-size: 22px;
+        margin: 0 0 8px 0;
+        font-weight: bold;
       }
       h2 {
-        font-size: 18px;
-        margin-top: 32px;
-        margin-bottom: 12px;
+        font-size: 16px;
+        margin: 14px 0 10px 0;
+        font-weight: bold;
       }
       p {
         margin: 4px 0;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+      section {
+        margin-bottom: 14px;
       }
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 24px;
+        margin-bottom: 14px;
+        font-size: 11px;
       }
       th, td {
         border: 1px solid #e2e8f0;
-        padding: 10px;
-        font-size: 13px;
-        vertical-align: top;
+        padding: 7px 10px;
+        font-size: 11px;
+        vertical-align: middle;
+        line-height: 1.5;
       }
       th {
         background: #f8fafc;
+        font-weight: bold;
       }
       .text-right { text-align: right; }
       .text-center { text-align: center; }
@@ -335,12 +351,16 @@ const PerformanceAnalysisPage = () => {
       .text-down { color: #b91c1c; font-weight: 600; }
       .summary-box {
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 16px;
-        margin-top: 24px;
+        padding: 12px;
+        margin-top: 12px;
+        font-size: 11px;
       }
       small {
         color: #475569;
+        font-size: 10px;
+      }
+      strong {
+        font-weight: bold;
       }
     `;
 
@@ -358,9 +378,7 @@ const PerformanceAnalysisPage = () => {
         <body>
           <header>
             <h1>Análise de Performance</h1>
-            <p><strong>Setorista:</strong> ${selectedSetoristaLabel}</p>
-            <p><strong>Período:</strong> ${monthsSummary}</p>
-            <p><small>Gerado em ${new Date().toLocaleString("pt-BR")}</small></p>
+            <p><strong>Setorista:</strong> ${selectedSetoristaLabel} | <strong>Período:</strong> ${monthsSummary} | <small>${new Date().toLocaleString("pt-BR")}</small></p>
           </header>
 
           <section>
@@ -385,8 +403,8 @@ const PerformanceAnalysisPage = () => {
                 <tr>
                   <th>Indicador</th>
                   <th>Período</th>
-                  <th class="text-right">Diferença em Valor</th>
-                  <th class="text-right">Diferença (%)</th>
+                  <th class="text-right">Dif. Valor</th>
+                  <th class="text-right">Dif. %</th>
                   <th>Tendência</th>
                 </tr>
               </thead>
@@ -870,12 +888,7 @@ const PerformanceAnalysisPage = () => {
                     (key) => (
                       <TableRow key={key}>
                         <TableCell className="font-medium">
-                          <div className="flex flex-col">
-                            <span>{indicatorConfig[key].label}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {indicatorConfig[key].description}
-                            </span>
-                          </div>
+                          {indicatorConfig[key].label}
                         </TableCell>
                         {sortedMonths.map((month) => (
                           <TableCell
